@@ -26,17 +26,8 @@ func NewClient(jid JID, password string, config *ClientConfig) (*client, error) 
 	}
 
 	for {
-		// Send stream start.
-		s := fmt.Sprintf(
-			"<stream:stream from='%s' to='%s' version='1.0' xml:lang='en' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>",
-			jid,
-			jid.Domain)
-		if err := stream.Send(fmt.Sprintf(s)); err != nil {
-			return nil, err
-		}
 
-		// Receive stream start.
-		if _, err := stream.Next(&xml.Name{nsStream, "stream"}); err != nil {
+		if err := startClient(stream, jid); err != nil {
 			return nil, err
 		}
 
@@ -68,6 +59,23 @@ func NewClient(jid JID, password string, config *ClientConfig) (*client, error) 
 	}
 
 	return &client{jid, stream}, nil
+}
+
+func startClient(stream *Stream, jid JID) error {
+
+	s := fmt.Sprintf(
+		"<stream:stream from='%s' to='%s' version='1.0' xml:lang='en' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>",
+		jid,
+		jid.Domain)
+	if err := stream.Send(s); err != nil {
+		return err
+	}
+
+	if _, err := stream.Next(&xml.Name{nsStream, "stream"}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func authenticate(stream *Stream, mechanisms []string, user, password string) error {
