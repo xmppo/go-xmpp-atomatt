@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-type Client struct {
+type client struct {
 	JID JID
 	stream *Stream
 }
@@ -18,7 +18,7 @@ type ClientConfig struct {
 	InsecureSkipVerify bool
 }
 
-func NewClient(jid JID, password string, config *ClientConfig) (*Client, error) {
+func NewClient(jid JID, password string, config *ClientConfig) (*client, error) {
 
 	stream, err := NewStream(jid.Domain + ":5222")
 	if err != nil {
@@ -71,7 +71,7 @@ func NewClient(jid JID, password string, config *ClientConfig) (*Client, error) 
 		break
 	}
 
-	return &Client{jid, stream}, nil
+	return &client{jid, stream}, nil
 }
 
 func authenticate(stream *Stream, mechanisms []string, user, password string) error {
