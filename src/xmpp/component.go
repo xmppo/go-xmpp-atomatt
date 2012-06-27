@@ -20,10 +20,6 @@ func NewComponent(addr string, jid JID, secret string) (*component, error) {
 		return nil, err
 	}
 
-	if err := stream.Send("<?xml version='1.0'?>"); err != nil {
-		return nil, err
-	}
-
 	streamId, err := startComponent(stream, jid)
 	if err != nil {
 		return nil, err

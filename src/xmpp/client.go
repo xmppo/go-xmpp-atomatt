@@ -25,10 +25,6 @@ func NewClient(jid JID, password string, config *ClientConfig) (*client, error) 
 		return nil, err
 	}
 
-	if err := stream.Send("<?xml version='1.0'?>\n"); err != nil {
-		return nil, err
-	}
-
 	for {
 		// Send stream start.
 		s := fmt.Sprintf(

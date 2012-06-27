@@ -28,6 +28,10 @@ func NewStream(addr string) (*Stream, error) {
 		return nil, err
 	}
 
+	if _, err := conn.Write([]byte("<?xml version='1.0'?>")); err != nil {
+		return nil, err
+	}
+
 	dec := xml.NewDecoder(conn)
 	return &Stream{conn, dec}, nil
 }
