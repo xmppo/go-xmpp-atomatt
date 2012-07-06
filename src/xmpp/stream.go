@@ -14,12 +14,12 @@ const (
 	nsTLS = "urn:ietf:params:xml:ns:xmpp-tls"
 )
 
-type Stream struct {
+type stream struct {
 	conn net.Conn
 	dec *xml.Decoder
 }
 
-func NewStream(addr string) (*Stream, error) {
+func Stream(addr string) (*stream, error) {
 
 	log.Println("Connecting to", addr)
 
@@ -33,10 +33,10 @@ func NewStream(addr string) (*Stream, error) {
 	}
 
 	dec := xml.NewDecoder(conn)
-	return &Stream{conn, dec}, nil
+	return &stream{conn, dec}, nil
 }
 
-func (stream *Stream) UpgradeTLS(config *tls.Config) error {
+func (stream *stream) UpgradeTLS(config *tls.Config) error {
 
 	log.Println("Upgrading to TLS")
 
@@ -60,14 +60,14 @@ func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 	return nil
 }
 
-func (stream *Stream) Send(s string) error {
+func (stream *stream) Send(s string) error {
 	if _, err := stream.conn.Write([]byte(s)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
+func (stream *stream) Next(match *xml.Name) (*xml.StartElement, error) {
 	for {
 		t, err := stream.dec.Token()
 		if err != nil {
@@ -83,11 +83,11 @@ func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 	panic("Unreachable")
 }
 
-func (stream *Stream) Decode(i interface{}) error {
+func (stream *stream) Decode(i interface{}) error {
 	return stream.dec.Decode(i)
 }
 
-func (stream *Stream) DecodeElement(i interface{}, se *xml.StartElement) error {
+func (stream *stream) DecodeElement(i interface{}, se *xml.StartElement) error {
 	return stream.dec.DecodeElement(i, se)
 }
 
