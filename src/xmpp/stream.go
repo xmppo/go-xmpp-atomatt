@@ -19,6 +19,8 @@ type Stream struct {
 	dec *xml.Decoder
 }
 
+// Create a XML stream connection. See NewClientStream and NewComponentStream
+// for something more useful.
 func NewStream(addr string) (*Stream, error) {
 
 	log.Println("Connecting to", addr)
@@ -36,6 +38,7 @@ func NewStream(addr string) (*Stream, error) {
 	return &Stream{conn, dec}, nil
 }
 
+// Upgrade the stream's underlying net conncetion to TLS.
 func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 
 	log.Println("Upgrading to TLS")
