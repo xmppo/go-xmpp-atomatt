@@ -8,11 +8,6 @@ import (
 	"log"
 )
 
-type client struct {
-	JID JID
-	stream *Stream
-}
-
 // Config structure used to create a new XMPP client connection.
 type ClientConfig struct {
 	// Don't upgrade the connection to TLS, even if the server supports it. If
@@ -24,7 +19,7 @@ type ClientConfig struct {
 	InsecureSkipVerify bool
 }
 
-func NewClient(jid JID, password string, config *ClientConfig) (*client, error) {
+func ClientStream(jid JID, password string, config *ClientConfig) (*Stream, error) {
 
 	stream, err := NewStream(jid.Domain + ":5222")
 	if err != nil {
@@ -64,7 +59,7 @@ func NewClient(jid JID, password string, config *ClientConfig) (*client, error) 
 		break
 	}
 
-	return &client{jid, stream}, nil
+	return stream, nil
 }
 
 func startClient(stream *Stream, jid JID) error {

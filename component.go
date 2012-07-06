@@ -16,11 +16,11 @@ func main() {
 	jid, _ := xmpp.ParseJID(*jid)
 	secret := *secret
 
-	c, err := xmpp.NewComponent("localhost:5347", jid, secret)
+	stream, err := xmpp.ComponentStream("localhost:5347", jid, secret)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println(c)
+	log.Println(stream)
 	select {}
 }

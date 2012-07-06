@@ -8,12 +8,7 @@ import (
 	"log"
 )
 
-type component struct {
-	jid JID
-	stream *Stream
-}
-
-func NewComponent(addr string, jid JID, secret string) (*component, error) {
+func ComponentStream(addr string, jid JID, secret string) (*Stream, error) {
 
 	stream, err := NewStream(addr)
 	if err != nil {
@@ -29,7 +24,7 @@ func NewComponent(addr string, jid JID, secret string) (*component, error) {
 		return nil, err
 	}
 
-	return &component{jid, stream}, nil
+	return stream, nil
 }
 
 func startComponent(stream *Stream, jid JID) (string, error) {
