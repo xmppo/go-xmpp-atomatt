@@ -8,9 +8,10 @@ import (
 	"log"
 )
 
-func ComponentStream(addr string, jid JID, secret string) (*stream, error) {
+// Create a component XMPP stream.
+func NewComponentStream(addr string, jid JID, secret string) (*Stream, error) {
 
-	stream, err := Stream(addr)
+	stream, err := NewStream(addr)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +28,7 @@ func ComponentStream(addr string, jid JID, secret string) (*stream, error) {
 	return stream, nil
 }
 
-func startComponent(stream *stream, jid JID) (string, error) {
+func startComponent(stream *Stream, jid JID) (string, error) {
 
 	s := fmt.Sprintf(
 		"<stream:stream xmlns='jabber:component:accept' xmlns:stream='http://etherx.jabber.org/streams' to='%s'>",
@@ -55,7 +56,7 @@ func startComponent(stream *stream, jid JID) (string, error) {
 	return streamId, nil
 }
 
-func handshake(stream *stream, streamId, secret string) error {
+func handshake(stream *Stream, streamId, secret string) error {
 
 	hash := sha1.New()
 	hash.Write([]byte(streamId))

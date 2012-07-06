@@ -17,7 +17,7 @@ func main() {
 	jid, _ := xmpp.ParseJID(*jid)
 	password := *password
 
-	stream, err := xmpp.ClientStream(jid, password, &xmpp.ClientConfig{})
+	stream, err := xmpp.NewClientStream(jid, password, &xmpp.ClientConfig{})
 	if err != nil {
 		log.Fatal(err)
 	}

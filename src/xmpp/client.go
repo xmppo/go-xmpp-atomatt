@@ -19,9 +19,10 @@ type ClientConfig struct {
 	InsecureSkipVerify bool
 }
 
-func ClientStream(jid JID, password string, config *ClientConfig) (*stream, error) {
+// Create a client XMPP stream.
+func NewClientStream(jid JID, password string, config *ClientConfig) (*Stream, error) {
 
-	stream, err := Stream(jid.Domain + ":5222")
+	stream, err := NewStream(jid.Domain + ":5222")
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +63,7 @@ func ClientStream(jid JID, password string, config *ClientConfig) (*stream, erro
 	return stream, nil
 }
 
-func startClient(stream *stream, jid JID) error {
+func startClient(stream *Stream, jid JID) error {
 
 	s := fmt.Sprintf(
 		"<stream:stream from='%s' to='%s' version='1.0' xml:lang='en' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>",
@@ -79,7 +80,7 @@ func startClient(stream *stream, jid JID) error {
 	return nil
 }
 
-func authenticate(stream *stream, mechanisms []string, user, password string) error {
+func authenticate(stream *Stream, mechanisms []string, user, password string) error {
 
 	log.Println("authenticate, mechanisms=", mechanisms)
 
@@ -90,7 +91,7 @@ func authenticate(stream *stream, mechanisms []string, user, password string) er
 	return authenticatePlain(stream, user, password)
 }
 
-func authenticatePlain(stream *stream, user, password string) error {
+func authenticatePlain(stream *Stream, user, password string) error {
 	
 	x := fmt.Sprintf(
 		"<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>%s</auth>",
