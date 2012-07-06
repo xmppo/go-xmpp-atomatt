@@ -5,12 +5,23 @@ import (
 	"strings"
 )
 
+/*
+Jabber Identifier - uniquely identifies an individual entity in a XMPP/Jabber
+network.
+*/
 type JID struct {
+	// Local component e.g. the alice of alice@example.com/foo.
 	Local string
+
+	// Domain component, e.g. the example.com of alice@example.com/foo for a
+	// client or the whole JID of a component.
 	Domain string
+
+	// Resource component, e.g. the foo of alice@example.com/foo.
 	Resource string
 }
 
+// Return the "bare" JID, i.e. no resource component.
 func (jid JID) Bare() string {
 	if jid.Local == "" {
 		return jid.Domain
@@ -18,13 +29,20 @@ func (jid JID) Bare() string {
 	return fmt.Sprintf("%s@%s", jid.Local, jid.Domain)
 }
 
-func (jid JID) String() string {
+// Return the full JID as a string.
+func (jid JID) Full() string {
 	if jid.Resource == "" {
 		return jid.Bare()
 	}
 	return fmt.Sprintf("%s@%s/%s", jid.Local, jid.Domain, jid.Resource)
 }
 
+// Return full JID as a string.
+func (jid JID) String() string {
+	return jid.Full()
+}
+
+// Parse a string into a JID structure.
 func ParseJID(s string) (jid JID, err error) {
 
 	if parts := strings.SplitN(s, "/", 2); len(parts) == 1 {
@@ -43,3 +61,5 @@ func ParseJID(s string) (jid JID, err error) {
 
 	return
 }
+
+// BUG(matt): ParseJID should fail for incorrectly formatted JIDs.
