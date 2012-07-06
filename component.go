@@ -6,18 +6,17 @@ import (
 	"xmpp"
 )
 
+var (
+	jid = flag.String("j", "", "JID")
+	secret = flag.String("s", "", "Component secret")
+)
+
 func main() {
-
-	jid := flag.String("jid", "", "JID")
-	secret := flag.String("secret", "", "Component secret")
 	flag.Parse()
+	jid, _ := xmpp.ParseJID(*jid)
+	secret := *secret
 
-	jid2, err := xmpp.ParseJID(*jid)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	c, err := xmpp.NewComponent("localhost:5347", jid2, *secret)
+	c, err := xmpp.NewComponent("localhost:5347", jid, secret)
 	if err != nil {
 		log.Fatal(err)
 	}

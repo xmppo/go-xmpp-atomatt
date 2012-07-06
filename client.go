@@ -6,18 +6,18 @@ import (
 	"xmpp"
 )
 
+var (
+	jid      = flag.String("j", "", "JID")
+	password = flag.String("p", "", "Password")
+)
+
 func main() {
-
-	jid := flag.String("jid", "", "JID")
-	password := flag.String("pass", "", "Password")
+	// Parse args.
 	flag.Parse()
+	jid, _ := xmpp.ParseJID(*jid)
+	password := *password
 
-	jid2, err := xmpp.ParseJID(*jid)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	c, err := xmpp.NewClient(jid2, *password, &xmpp.ClientConfig{})
+	c, err := xmpp.NewClient(jid, password, &xmpp.ClientConfig{})
 	if err != nil {
 		log.Fatal(err)
 	}
