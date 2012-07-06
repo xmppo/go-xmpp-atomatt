@@ -94,3 +94,5 @@ func (stream *Stream) DecodeElement(i interface{}, se *xml.StartElement) error {
 type tlsProceed struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-tls proceed"`
 }
+
+// BUG(matt): UpgradeTLS shoudln't be doing anything specific to XMPP.
