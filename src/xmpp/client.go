@@ -49,7 +49,7 @@ func NewClient(jid JID, password string, config *ClientConfig) (*client, error) 
 		// Authentication
 		if f.Mechanisms != nil {
 			log.Println("Authenticating")
-			if err := authenticate(stream, f.Mechanisms.Mechanisms, jid.Local, password); err != nil {
+			if err := authenticate(stream, f.Mechanisms.Mechanisms, jid.Node, password); err != nil {
 				return nil, err
 			}
 			continue // Restart
