@@ -13,8 +13,14 @@ type client struct {
 	stream *Stream
 }
 
+// Config structure used to create a new XMPP client connection.
 type ClientConfig struct {
+	// Don't upgrade the connection to TLS, even if the server supports it. If
+	// the server *requires* TLS then this option is ignored.
 	NoTLS bool
+
+	// Skip verification of the server's certificate chain. Probably only
+	// useful during development.
 	InsecureSkipVerify bool
 }
 
