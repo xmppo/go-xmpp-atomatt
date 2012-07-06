@@ -63,10 +63,28 @@ func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 	return nil
 }
 
-func (stream *Stream) Send(s string) error {
-	if _, err := stream.conn.Write([]byte(s)); err != nil {
+func (stream *Stream) Send(v interface{}) error {
+
+	var bytes []byte
+
+	switch v2 := v.(type) {
+	case []byte:
+		bytes = v2
+	case string:
+		bytes = []byte(v2)
+	default:
+		b, err := xml.Marshal(v2)
+		if err != nil {
+			return err
+		}
+		bytes = b
+	}
+
+	log.Println("send:", string(bytes))
+	if _, err := stream.conn.Write(bytes); err != nil {
 		return err
 	}
+
 	return nil
 }
 
