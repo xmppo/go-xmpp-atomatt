@@ -26,3 +26,13 @@ func (iq *Iq) PayloadEncode(v interface{}) error {
 func (iq *Iq) PayloadDecode(v interface{}) error {
 	return xml.Unmarshal([]byte(iq.Payload), v)
 }
+
+// XMPP <message/> stanza.
+type Message struct {
+	XMLName xml.Name `xml:"message"`
+}
+
+// XMPP <presence/> stanza.
+type Presence struct {
+	XMLName xml.Name `xml:"presence"`
+}
