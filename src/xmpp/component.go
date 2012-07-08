@@ -83,5 +83,5 @@ func handshake(stream *Stream, streamId, secret string) error {
 
 type saslHandshake struct {
 	XMLName xml.Name `xml:"handshake"`
-	Value string `xml:",innerxml"`
+	Value string `xml:",chardata"`
 }

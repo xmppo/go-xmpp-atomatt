@@ -153,7 +153,7 @@ func authenticatePlain(stream *Stream, user, password string) error {
 type saslAuth struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl auth"`
 	Mechanism string `xml:"mechanism,attr"`
-	Message string `xml:",innerxml"`
+	Message string `xml:",chardata"`
 }
 
 func bindResource(stream *Stream, jid JID) (JID, error) {
