@@ -8,8 +8,8 @@ import (
 	"log"
 )
 
-// Create a component XMPP stream.
-func NewComponentStream(addr string, jid JID, secret string) (*Stream, error) {
+// Create a component XMPP connection.
+func NewComponentXMPP(addr string, jid JID, secret string) (*XMPP, error) {
 
 	stream, err := NewStream(addr)
 	if err != nil {
@@ -25,7 +25,7 @@ func NewComponentStream(addr string, jid JID, secret string) (*Stream, error) {
 		return nil, err
 	}
 
-	return stream, nil
+	return newXMPP(jid, stream), nil
 }
 
 func startComponent(stream *Stream, jid JID) (string, error) {

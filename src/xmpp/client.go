@@ -20,7 +20,7 @@ type ClientConfig struct {
 }
 
 // Create a client XMPP stream.
-func NewClientStream(jid JID, password string, config *ClientConfig) (*Stream, error) {
+func NewClientXMPP(jid JID, password string, config *ClientConfig) (*XMPP, error) {
 
 	stream, err := NewStream(jid.Domain + ":5222")
 	if err != nil {
@@ -60,7 +60,7 @@ func NewClientStream(jid JID, password string, config *ClientConfig) (*Stream, e
 		break
 	}
 
-	return stream, nil
+	return newXMPP(jid, stream), nil
 }
 
 func startClient(stream *Stream, jid JID) error {
