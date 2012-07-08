@@ -155,7 +155,6 @@ func bindResourceClient(stream *Stream, jid JID) (JID, error) {
 	}
 	bindResp := bindIq{}
 	resp.PayloadDecode(&bindResp)
-	log.Printf("%#v\n", bindResp)
 
 	boundJID, err := ParseJID(bindResp.JID)
 	return boundJID, nil
