@@ -7,13 +7,8 @@ import (
 	"fmt"
 )
 
-// Create a component XMPP connection.
-func NewComponentXMPP(addr string, jid JID, secret string) (*XMPP, error) {
-
-	stream, err := NewStream(addr)
-	if err != nil {
-		return nil, err
-	}
+// Create a component XMPP connection over the stream.
+func NewComponentXMPP(stream *Stream, jid JID, secret string) (*XMPP, error) {
 
 	streamId, err := startComponent(stream, jid)
 	if err != nil {

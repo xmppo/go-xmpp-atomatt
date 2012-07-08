@@ -19,13 +19,8 @@ type ClientConfig struct {
 	InsecureSkipVerify bool
 }
 
-// Create a client XMPP stream.
-func NewClientXMPP(jid JID, password string, config *ClientConfig) (*XMPP, error) {
-
-	stream, err := NewStream(jid.Domain + ":5222")
-	if err != nil {
-		return nil, err
-	}
+// Create a client XMPP over the stream.
+func NewClientXMPP(stream *Stream, jid JID, password string, config *ClientConfig) (*XMPP, error) {
 
 	for {
 
