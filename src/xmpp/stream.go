@@ -42,7 +42,7 @@ func NewStream(addr string) (*Stream, error) {
 // Upgrade the stream's underlying net conncetion to TLS.
 func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 
-	conn := tls.Client(stream.conn, &tls.Config{InsecureSkipVerify: true})
+	conn := tls.Client(stream.conn, config)
 	if err := conn.Handshake(); err != nil {
 		return err
 	}

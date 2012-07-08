@@ -17,7 +17,7 @@ func main() {
 	jid, _ := xmpp.ParseJID(*jid)
 	password := *password
 
-	x, err := xmpp.NewClientXMPP(jid, password, &xmpp.ClientConfig{})
+	x, err := xmpp.NewClientXMPP(jid, password, &xmpp.ClientConfig{InsecureSkipVerify: true})
 	if err != nil {
 		log.Fatal(err)
 	}
