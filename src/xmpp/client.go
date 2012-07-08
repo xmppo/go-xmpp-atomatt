@@ -229,3 +229,7 @@ type saslFailure struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl failure"`
 	Reason xml.Name `xml:",any"`
 }
+
+// BUG(matt): Implement server-side resource binding.
+
+// BUG(matt): Don't use "foo" as the <iq/> id during resource binding.
