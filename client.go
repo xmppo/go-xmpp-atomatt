@@ -23,6 +23,7 @@ func main() {
 	}
 	log.Printf("Connection established for %s\n", x.JID)
 	x.Send(xmpp.Presence{})
+	x.Send(xmpp.Message{To: "carol@localhost", Body: "Hello!"})
 
 	select {}
 }
