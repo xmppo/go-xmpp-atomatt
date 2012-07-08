@@ -41,8 +41,8 @@ func NewClientXMPP(jid JID, password string, config *ClientConfig) (*XMPP, error
 
 		// TLS?
 		if f.StartTLS != nil && (f.StartTLS.Required != nil || !config.NoTLS) {
-			tlsConfig := tls.Config{InsecureSkipVerify: config.InsecureSkipVerify}
-			if err := stream.UpgradeTLS(&tlsConfig); err != nil {
+			log.Println("Start TLS")
+			if err := startTLS(stream, config); err != nil {
 				return nil, err
 			}
 			continue // Restart
@@ -94,6 +94,29 @@ func startClient(stream *Stream, jid JID) error {
 	}
 
 	return nil
+}
+
+func startTLS(stream *Stream, config *ClientConfig) error {
+
+	if err := stream.Send(&tlsStart{}); err != nil {
+		return err
+	}
+
+	p := tlsProceed{}
+	if err := stream.Decode(&p); err != nil {
+		return err
+	}
+
+	tlsConfig := tls.Config{InsecureSkipVerify: config.InsecureSkipVerify}
+	return stream.UpgradeTLS(&tlsConfig)
+}
+
+type tlsStart struct {
+	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-tls starttls"`
+}
+
+type tlsProceed struct {
+	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-tls proceed"`
 }
 
 func authenticate(stream *Stream, mechanisms []string, user, password string) error {

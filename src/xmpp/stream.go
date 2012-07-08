@@ -42,17 +42,6 @@ func NewStream(addr string) (*Stream, error) {
 // Upgrade the stream's underlying net conncetion to TLS.
 func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 
-	log.Println("Upgrading to TLS")
-
-	if err := stream.Send(&tlsStart{}); err != nil {
-		return err
-	}
-
-	p := tlsProceed{}
-	if err := stream.Decode(&p); err != nil {
-		return err
-	}
-
 	conn := tls.Client(stream.conn, &tls.Config{InsecureSkipVerify: true})
 	if err := conn.Handshake(); err != nil {
 		return err
@@ -135,13 +124,3 @@ func (stream *Stream) Decode(v interface{}) error {
 func (stream *Stream) DecodeElement(v interface{}, start *xml.StartElement) error {
 	return stream.dec.DecodeElement(v, start)
 }
-
-type tlsStart struct {
-	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-tls starttls"`
-}
-
-type tlsProceed struct {
-	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-tls proceed"`
-}
-
-// BUG(matt): UpgradeTLS shoudln't be doing anything specific to XMPP.
