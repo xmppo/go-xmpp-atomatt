@@ -57,6 +57,16 @@ func NewClientXMPP(jid JID, password string, config *ClientConfig) (*XMPP, error
 			continue // Restart
 		}
 
+		// Bind resource.
+		if f.Bind != nil {
+			log.Println("Binding resource.")
+			boundJID, err := bindResource(stream, jid)
+			if err != nil {
+				return nil, err
+			}
+			jid = boundJID
+		}
+
 		break
 	}
 
@@ -113,6 +123,44 @@ func authenticatePlain(stream *Stream, user, password string) error {
 	return nil
 }
 
+func bindResource(stream *Stream, jid JID) (JID, error) {
+	if jid.Resource == "" {
+		return bindResourceServer(stream)
+	}
+	return bindResourceClient(stream, jid)
+}
+
+func bindResourceClient(stream *Stream, jid JID) (JID, error) {
+
+	req := Iq{Id: "foo", Type: "set"}
+	req.PayloadEncode(bindIq{Resource: jid.Resource})
+	if err := stream.Send(req); err != nil {
+		return JID{}, err
+	}
+
+	resp := Iq{}
+	err := stream.Decode(&resp)
+	if err != nil {
+		return JID{}, err
+	}
+	bindResp := bindIq{}
+	resp.PayloadDecode(&bindResp)
+	log.Printf("%#v\n", bindResp)
+
+	boundJID, err := ParseJID(bindResp.JID)
+	return boundJID, nil
+}
+
+func bindResourceServer(stream *Stream) (JID, error) {
+	panic("bindResourceServer not implemented")
+}
+
+type bindIq struct {
+	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-bind bind"`
+	Resource string `xml:"resource,omitempty"`
+	JID string `xml:"jid,omitempty"`
+}
+
 func stringSliceContains(l []string, m string) bool {
 	for _, i := range l {
 		if i == m {
@@ -126,6 +174,12 @@ type features struct {
 	XMLName xml.Name `xml:"http://etherx.jabber.org/streams features"`
 	StartTLS *tlsStartTLS `xml:"starttls"`
 	Mechanisms *mechanisms `xml:"mechanisms"`
+	Bind *bind `xml:"bind"`
+}
+
+type bind struct {
+	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-bind bind"`
+	Required *required `xml:"required"`
 }
 
 type mechanisms struct {
@@ -135,11 +189,10 @@ type mechanisms struct {
 
 type tlsStartTLS struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-tls starttls"`
-	Required *tlsStartTLSRequired `xml:"required"`
+	Required *required `xml:"required"`
 }
 
-type tlsStartTLSRequired struct {
-}
+type required struct {}
 
 type saslSuccess struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl success"`

@@ -21,6 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("Connection established for %s\n", x.JID)
 	x.Send(xmpp.Presence{})
 
 	select {}
