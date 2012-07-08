@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"log"
 )
 
 // Create a component XMPP connection.
@@ -30,10 +29,16 @@ func NewComponentXMPP(addr string, jid JID, secret string) (*XMPP, error) {
 
 func startComponent(stream *Stream, jid JID) (string, error) {
 
-	s := fmt.Sprintf(
-		"<stream:stream xmlns='jabber:component:accept' xmlns:stream='http://etherx.jabber.org/streams' to='%s'>",
-		jid)
-	if err := stream.Send(s); err != nil {
+	start := xml.StartElement{
+		xml.Name{"stream", "stream"},
+		[]xml.Attr{
+			xml.Attr{xml.Name{"", "xmlns"}, "jabber:component:accept"},
+			xml.Attr{xml.Name{"xmlns", "stream"}, "http://etherx.jabber.org/streams"},
+			xml.Attr{xml.Name{"", "to"}, jid.Full()},
+		},
+	}
+
+	if err := stream.SendStart(&start); err != nil {
 		return "", err
 	}
 
@@ -63,9 +68,8 @@ func handshake(stream *Stream, streamId, secret string) error {
 	hash.Write([]byte(secret))
 
 	// Send handshake.
-	s := fmt.Sprintf("<handshake>%x</handshake>", hash.Sum(nil))
-	log.Println(s)
-	if err := stream.Send(s); err != nil {
+	handshake := saslHandshake{Value: fmt.Sprintf("%x", hash.Sum(nil))}
+	if err := stream.Send(&handshake); err != nil {
 		return err
 	}
 
@@ -75,4 +79,9 @@ func handshake(stream *Stream, streamId, secret string) error {
 	}
 
 	return nil
+}
+
+type saslHandshake struct {
+	XMLName xml.Name `xml:"handshake"`
+	Value string `xml:",innerxml"`
 }

@@ -1,6 +1,7 @@
 package xmpp
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/xml"
 	"errors"
@@ -19,8 +20,8 @@ type Stream struct {
 	dec *xml.Decoder
 }
 
-// Create a XML stream connection. See NewClientStream and NewComponentStream
-// for something more useful.
+// Create a XML stream connection. Typically handles the encoding and decoding
+// of XML data for a higher-level API, e.g. XMPP.
 func NewStream(addr string) (*Stream, error) {
 
 	log.Println("Connecting to", addr)
@@ -43,7 +44,7 @@ func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 
 	log.Println("Upgrading to TLS")
 
-	if err := stream.Send("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"); err != nil {
+	if err := stream.Send(&tlsStart{}); err != nil {
 		return err
 	}
 
@@ -63,31 +64,50 @@ func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 	return nil
 }
 
-func (stream *Stream) Send(v interface{}) error {
+// Send the element's start tag. Typically used to open the stream's document.
+func (stream *Stream) SendStart(start *xml.StartElement) error {
 
-	var bytes []byte
-
-	switch v2 := v.(type) {
-	case []byte:
-		bytes = v2
-	case string:
-		bytes = []byte(v2)
-	default:
-		b, err := xml.Marshal(v2)
-		if err != nil {
+	buf := new(bytes.Buffer)
+	if _, err := buf.Write([]byte{'<'}); err != nil {
+		return err
+	}
+	if err := writeXMLName(buf, start.Name); err != nil {
+		return err
+	}
+	for _, attr := range start.Attr {
+		if _, err := buf.Write([]byte{' '}); err != nil {
 			return err
 		}
-		bytes = b
+		if err := writeXMLAttr(buf, attr); err != nil {
+			return err
+		}
 	}
-
-	log.Println("send:", string(bytes))
-	if _, err := stream.conn.Write(bytes); err != nil {
+	if _, err := buf.Write([]byte{'>'}); err != nil {
 		return err
 	}
 
+	return stream.send(buf.Bytes())
+}
+
+// Send a stanza. Used to write a complete, top-level element.
+func (stream *Stream) Send(v interface{}) error {
+	bytes, err := xml.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return stream.send(bytes)
+}
+
+func (stream *Stream) send(b []byte) error {
+	log.Println("send:", string(b))
+	if _, err := stream.conn.Write(b); err != nil {
+		return err
+	}
 	return nil
 }
 
+// Find start of next stanza. If match is not nil the stanza's XML name
+// compared and must be equal.
 func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 	for {
 		t, err := stream.dec.Token()
@@ -104,12 +124,20 @@ func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 	panic("Unreachable")
 }
 
-func (stream *Stream) Decode(i interface{}) error {
-	return stream.dec.Decode(i)
+// Decode the next stanza. Works like xml.Unmarshal but reads from the stream's
+// connection.
+func (stream *Stream) Decode(v interface{}) error {
+	return stream.dec.Decode(v)
 }
 
-func (stream *Stream) DecodeElement(i interface{}, se *xml.StartElement) error {
-	return stream.dec.DecodeElement(i, se)
+// Decode the stanza with the given start element. Works like
+// xml.Decoder.DecodeElement.
+func (stream *Stream) DecodeElement(v interface{}, start *xml.StartElement) error {
+	return stream.dec.DecodeElement(v, start)
+}
+
+type tlsStart struct {
+	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-tls starttls"`
 }
 
 type tlsProceed struct {

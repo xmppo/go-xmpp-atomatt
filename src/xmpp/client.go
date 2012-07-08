@@ -75,11 +75,17 @@ func NewClientXMPP(jid JID, password string, config *ClientConfig) (*XMPP, error
 
 func startClient(stream *Stream, jid JID) error {
 
-	s := fmt.Sprintf(
-		"<stream:stream from='%s' to='%s' version='1.0' xml:lang='en' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>",
-		jid,
-		jid.Domain)
-	if err := stream.Send(s); err != nil {
+	start := xml.StartElement{
+		xml.Name{"stream", "stream"},
+		[]xml.Attr{
+			xml.Attr{xml.Name{"", "xmlns"}, "jabber:client"},
+			xml.Attr{xml.Name{"xmlns", "stream"}, "http://etherx.jabber.org/streams"},
+			xml.Attr{xml.Name{"", "from"}, jid.Full()},
+			xml.Attr{xml.Name{"", "to"}, jid.Domain},
+		},
+	}
+
+	if err := stream.SendStart(&start); err != nil {
 		return err
 	}
 
@@ -103,10 +109,8 @@ func authenticate(stream *Stream, mechanisms []string, user, password string) er
 
 func authenticatePlain(stream *Stream, user, password string) error {
 	
-	x := fmt.Sprintf(
-		"<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>%s</auth>",
-		saslEncodePlain(user, password))
-	if err := stream.Send(x); err != nil {
+	auth := saslAuth{Mechanism: "PLAIN", Message: saslEncodePlain(user, password)}
+	if err := stream.Send(&auth); err != nil {
 		return err
 	}
 
@@ -121,6 +125,12 @@ func authenticatePlain(stream *Stream, user, password string) error {
 	}
 
 	return nil
+}
+
+type saslAuth struct {
+	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl auth"`
+	Mechanism string `xml:"mechanism,attr"`
+	Message string `xml:",innerxml"`
 }
 
 func bindResource(stream *Stream, jid JID) (JID, error) {
