@@ -2,7 +2,11 @@ package xmpp
 
 import "log"
 
+// Handles XMPP conversations over a Stream. Use NewClientXMPP and/or
+// NewComponentXMPP to create and configuring a XMPP instance.
 type XMPP struct {
+	// JID associated with the stream. Note: this may be negotiated with the
+	// server during setup and so must be used for all messages.
 	JID JID
 	stream *Stream
 	in chan interface{}
@@ -21,6 +25,7 @@ func newXMPP(jid JID, stream *Stream) *XMPP {
 	return x
 }
 
+// Send a stanza.
 func (x *XMPP) Send(v interface{}) {
 	x.out <- v
 }

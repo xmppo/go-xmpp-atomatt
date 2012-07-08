@@ -20,8 +20,8 @@ type Stream struct {
 	dec *xml.Decoder
 }
 
-// Create a XML stream connection. Typically handles the encoding and decoding
-// of XML data for a higher-level API, e.g. XMPP.
+// Create a XML stream connection. A Steam is used by an XMPP instance to
+// handle sending and receiving XML data over the net connection.
 func NewStream(addr string) (*Stream, error) {
 
 	log.Println("Connecting to", addr)
