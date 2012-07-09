@@ -22,6 +22,10 @@ type ClientConfig struct {
 // Create a client XMPP over the stream.
 func NewClientXMPP(stream *Stream, jid JID, password string, config *ClientConfig) (*XMPP, error) {
 
+	if config == nil {
+		config = &ClientConfig{}
+	}
+
 	for {
 
 		if err := startClient(stream, jid); err != nil {
