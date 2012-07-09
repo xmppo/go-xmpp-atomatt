@@ -152,16 +152,13 @@ type saslAuth struct {
 }
 
 func bindResource(stream *Stream, jid JID) (JID, error) {
-	if jid.Resource == "" {
-		return bindResourceServer(stream)
-	}
-	return bindResourceClient(stream, jid)
-}
-
-func bindResourceClient(stream *Stream, jid JID) (JID, error) {
 
 	req := Iq{Id: "foo", Type: "set"}
-	req.PayloadEncode(bindIq{Resource: jid.Resource})
+	if jid.Resource == "" {
+		req.PayloadEncode(bindIq{})
+	} else {
+		req.PayloadEncode(bindIq{Resource: jid.Resource})
+	}
 	if err := stream.Send(req); err != nil {
 		return JID{}, err
 	}
@@ -176,10 +173,6 @@ func bindResourceClient(stream *Stream, jid JID) (JID, error) {
 
 	boundJID, err := ParseJID(bindResp.JID)
 	return boundJID, nil
-}
-
-func bindResourceServer(stream *Stream) (JID, error) {
-	panic("bindResourceServer not implemented")
 }
 
 type bindIq struct {
@@ -229,7 +222,5 @@ type saslFailure struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl failure"`
 	Reason xml.Name `xml:",any"`
 }
-
-// BUG(matt): Implement server-side resource binding.
 
 // BUG(matt): Don't use "foo" as the <iq/> id during resource binding.
