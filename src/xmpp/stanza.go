@@ -48,3 +48,8 @@ type Presence struct {
 	To string `xml:"to,attr,omitempty"`
 	From string `xml:"from,attr,omitempty"`
 }
+
+// XMPP <error/> stanza.
+type Error struct {
+	XMLName xml.Name `xml:"error"`
+}

@@ -115,6 +115,8 @@ func (x *XMPP) receiver() {
 
 		var v interface{}
 		switch start.Name.Local {
+		case "error":
+			v = &Error{}
 		case "iq":
 			v = &Iq{}
 		case "message":
