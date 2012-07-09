@@ -31,7 +31,10 @@ func main() {
 	}
 
 	for {
-		v := x.Recv()
+		v, err := x.Recv()
+		if err != nil {
+			log.Fatal(err)
+		}
 		log.Printf("recv: %v", v)
 	}
 }

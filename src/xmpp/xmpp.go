@@ -37,8 +37,13 @@ func (x *XMPP) Send(v interface{}) {
 	x.out <- v
 }
 
-func (x *XMPP) Recv() interface{} {
-	return <-x.in
+// Return the next stanza.
+func (x *XMPP) Recv() (interface{}, error) {
+	v := <-x.in
+	if e, ok := v.(error); ok {
+		return nil, e
+	}
+	return v, nil
 }
 
 func (x *XMPP) SendRecv(iq *Iq) (*Iq, error) {
@@ -107,10 +112,14 @@ func (x *XMPP) sender() {
 }
 
 func (x *XMPP) receiver() {
+
+	defer close(x.in)
+
 	for {
 		start, err := x.stream.Next(nil)
 		if err != nil {
-			log.Fatal(err)
+			x.in <- err
+			return
 		}
 
 		var v interface{}

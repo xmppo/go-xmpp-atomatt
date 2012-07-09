@@ -52,7 +52,10 @@ func main() {
 	// Log any stanzas that are not handled elsewhere.
 	go func() {
 		for {
-			stanza := x.Recv()
+			stanza, err := x.Recv()
+			if err != nil {
+				log.Fatal(err)
+			}
 			log.Printf("* recv: %v\n", stanza)
 		}
 	}()

@@ -137,14 +137,19 @@ func authenticatePlain(stream *Stream, user, password string) error {
 		return err
 	}
 
-	if se, err := stream.Next(nil); err != nil {
+	se, err := stream.Next(nil)
+	if err != nil {
 		return err
-	} else {
-		if se.Name.Local == "failure" {
-			f := new(saslFailure)
-			stream.DecodeElement(f, se)
-			return errors.New(fmt.Sprintf("Authentication failed: %s", f.Reason.Local))
+	}
+	switch se.Name.Local {
+	case "success":
+		if err := stream.Skip(); err != nil {
+			return err
 		}
+	case "failure":
+		f := new(saslFailure)
+		stream.DecodeElement(f, se)
+		return errors.New(fmt.Sprintf("Authentication failed: %s", f.Reason.Local))
 	}
 
 	return nil
@@ -218,10 +223,6 @@ type tlsStartTLS struct {
 }
 
 type required struct {}
-
-type saslSuccess struct {
-	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl success"`
-}
 
 type saslFailure struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl failure"`

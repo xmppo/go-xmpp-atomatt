@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"log"
 	"net"
 )
@@ -96,21 +97,33 @@ func (stream *Stream) send(b []byte) error {
 }
 
 // Find start of next stanza. If match is not nil the stanza's XML name
-// compared and must be equal.
+// is compared and must be equal.
+// Bad things are very likely to happen if a call to Next() is successful but
+// you don't actually decode or skip the element.
 func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 	for {
 		t, err := stream.dec.Token()
 		if err != nil {
 			return nil, err
 		}
-		if e, ok := t.(xml.StartElement); ok {
+		switch e := t.(type) {
+		case xml.StartElement:
 			if match != nil && e.Name != *match {
 				return nil, fmt.Errorf("Expected %s, got %s", *match, e.Name)
 			}
 			return &e, nil
+		case xml.EndElement:
+			log.Printf("EOF due to %s\n", e.Name)
+			return nil, io.EOF
 		}
 	}
 	panic("Unreachable")
+}
+
+// Skip reads tokens until it has reaches the end element of the most recent
+// start element that has already been read.
+func (stream *Stream) Skip() error {
+	return stream.dec.Skip()
 }
 
 // Decode the next stanza. Works like xml.Unmarshal but reads from the stream's
