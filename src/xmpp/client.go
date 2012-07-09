@@ -81,6 +81,7 @@ func startClient(stream *Stream, jid JID) error {
 			xml.Attr{xml.Name{"xmlns", "stream"}, "http://etherx.jabber.org/streams"},
 			xml.Attr{xml.Name{"", "from"}, jid.Full()},
 			xml.Attr{xml.Name{"", "to"}, jid.Domain},
+			xml.Attr{xml.Name{"", "version"}, "1.0"},
 		},
 	}
 
