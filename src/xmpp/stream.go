@@ -104,6 +104,9 @@ func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 	for {
 		t, err := stream.dec.Token()
 		if err != nil {
+			if err == io.EOF {
+				err = io.ErrUnexpectedEOF
+			}
 			return nil, err
 		}
 		switch e := t.(type) {
