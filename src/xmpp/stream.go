@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -106,7 +105,7 @@ func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 		}
 		if e, ok := t.(xml.StartElement); ok {
 			if match != nil && e.Name != *match {
-				return nil, errors.New(fmt.Sprintf("Expected %s, got %s", *match, e.Name))
+				return nil, fmt.Errorf("Expected %s, got %s", *match, e.Name)
 			}
 			return &e, nil
 		}
