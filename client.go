@@ -69,14 +69,14 @@ func main() {
 }
 
 type DiscoInfo struct {
-	XMLName xml.Name `xml:"http://jabber.org/protocol/disco#info query"`
+	XMLName  xml.Name        `xml:"http://jabber.org/protocol/disco#info query"`
 	Identity []DiscoIdentity `xml:"identity"`
-	Feature []DiscoFeature `xml:"feature"`
+	Feature  []DiscoFeature  `xml:"feature"`
 }
 
 type DiscoIdentity struct {
-	Type string `xml:"type,attr"`
-	Name string `xml:"name,attr"`
+	Type     string `xml:"type,attr"`
+	Name     string `xml:"name,attr"`
 	Category string `xml:"category,attr"`
 }
 

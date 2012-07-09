@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	addr = flag.String("a", "", "Server component address")
-	jid = flag.String("j", "", "JID")
+	addr   = flag.String("a", "", "Server component address")
+	jid    = flag.String("j", "", "JID")
 	secret = flag.String("s", "", "Component secret")
 )
 
