@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"log"
 	"xmpp"
@@ -29,9 +30,56 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	log.Printf("Connection established for %s\n", x.JID)
+
+	// Announce presence.
 	x.Send(xmpp.Presence{})
-	x.Send(xmpp.Message{To: "carol@localhost", Body: "Hello!"})
+
+	// Filter messages into dedicated channel and start a thread to log them.
+	_, messages := x.AddFilter(
+		func(v interface{}) bool {
+			_, ok := v.(*xmpp.Message)
+			return ok
+		},
+	)
+	go func() {
+		for message := range messages {
+			log.Printf("* message: %v\n", message)
+		}
+	}()
+
+	// Log any stanzas that are not handled elsewhere.
+	go func() {
+		for {
+			stanza := x.Recv()
+			log.Printf("* recv: %v\n", stanza)
+		}
+	}()
+
+	// Get disco#info for home server.
+	info := &DiscoInfo{}
+	iq := xmpp.Iq{Id: "abc", Type: "get", To: x.JID.Domain}
+	iq.PayloadEncode(info)
+	reply, _ := x.SendRecv(&iq)
+	reply.PayloadDecode(info)
+	log.Printf("* info: %v\n", info)
 
 	select {}
+}
+
+type DiscoInfo struct {
+	XMLName xml.Name `xml:"http://jabber.org/protocol/disco#info query"`
+	Identity []DiscoIdentity `xml:"identity"`
+	Feature []DiscoFeature `xml:"feature"`
+}
+
+type DiscoIdentity struct {
+	Type string `xml:"type,attr"`
+	Name string `xml:"name,attr"`
+	Category string `xml:"category,attr"`
+}
+
+type DiscoFeature struct {
+	Var string `xml:"var,attr"`
 }
