@@ -31,12 +31,13 @@ func NewStream(addr string) (*Stream, error) {
 		return nil, err
 	}
 
-	if _, err := conn.Write([]byte("<?xml version='1.0'?>")); err != nil {
+	stream := &Stream{conn, xml.NewDecoder(conn)}
+
+	if err := stream.send([]byte("<?xml version='1.0' encoding='utf-8'?>")); err != nil {
 		return nil, err
 	}
 
-	dec := xml.NewDecoder(conn)
-	return &Stream{conn, dec}, nil
+	return stream, nil
 }
 
 // Upgrade the stream's underlying net conncetion to TLS.
