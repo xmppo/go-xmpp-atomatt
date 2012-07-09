@@ -30,6 +30,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println(x)
-	select {}
+	for {
+		v := x.Recv()
+		log.Printf("recv: %v", v)
+	}
 }
