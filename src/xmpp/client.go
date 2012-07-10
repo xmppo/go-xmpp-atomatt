@@ -146,23 +146,30 @@ func authenticatePlain(stream *Stream, user, password string) error {
 	if err := stream.Send(&auth); err != nil {
 		return err
 	}
+	return authenticateResponse(stream)
+}
 
-	se, err := stream.Next(nil)
-	if err != nil {
+func authenticateResponse(stream *Stream) error {
+	if se, err := stream.Next(nil); err != nil {
 		return err
-	}
-	switch se.Name.Local {
-	case "success":
-		if err := stream.Skip(); err != nil {
-			return err
+	} else {
+		switch se.Name.Local {
+		case "success":
+			if err := stream.Skip(); err != nil {
+				return err
+			}
+			return nil
+		case "failure":
+			f := new(saslFailure)
+			if err := stream.DecodeElement(f, se); err != nil {
+				return err
+			}
+			return fmt.Errorf("Authentication failed: %s", f.Reason.Local)
+		default:
+			return fmt.Errorf("Unexpected: %s", se.Name)
 		}
-	case "failure":
-		f := new(saslFailure)
-		stream.DecodeElement(f, se)
-		return errors.New(fmt.Sprintf("Authentication failed: %s", f.Reason.Local))
 	}
-
-	return nil
+	panic("unreachable")
 }
 
 type saslAuth struct {
