@@ -3,6 +3,7 @@ package xmpp
 import (
 	"fmt"
 	"log"
+	"sync"
 )
 
 // Handles XMPP conversations over a Stream. Use NewClientXMPP and/or
@@ -18,6 +19,7 @@ type XMPP struct {
 	out chan interface{}
 
 	// Incoming stanza filters.
+	filterLock sync.Mutex
 	nextFilterId FilterId
 	filters map[FilterId]filter
 }
@@ -71,20 +73,36 @@ func (fid FilterId) Error() string {
 }
 
 func (x *XMPP) AddFilter(fn FilterFn) (FilterId, chan interface{}) {
-	ch := make(chan interface{})
+
+	// Protect against concurrent access.
+	x.filterLock.Lock()
+	defer x.filterLock.Lock()
+
+	// Create filter chan and add to map.
 	filterId := x.nextFilterId
 	x.nextFilterId ++
+	ch := make(chan interface{})
 	x.filters[filterId] = filter{fn, ch}
+
 	return filterId, ch
 }
 
 func (x *XMPP) RemoveFilter(id FilterId) error {
+
+	// Protect against concurrent access.
+	x.filterLock.Lock()
+	defer x.filterLock.Lock()
+
+	// Find filter.
 	filter, ok := x.filters[id]
 	if !ok {
 		return id
 	}
+
+	// Close filter channel and remove from map.
 	close(filter.ch)
 	delete(x.filters, id)
+
 	return nil
 }
 
@@ -157,7 +175,3 @@ func (x *XMPP) receiver() {
 		}
 	}
 }
-
-// BUG(matt): filter id generation is not re-entrant.
-
-// BUG(matt): filters map is not re-entrant.
