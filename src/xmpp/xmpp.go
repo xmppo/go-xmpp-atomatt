@@ -21,7 +21,7 @@ type XMPP struct {
 	// Incoming stanza filters.
 	filterLock sync.Mutex
 	nextFilterId FilterId
-	filters map[FilterId]filter
+	filters []filter
 }
 
 func newXMPP(jid JID, stream *Stream) *XMPP {
@@ -30,7 +30,6 @@ func newXMPP(jid JID, stream *Stream) *XMPP {
 		stream: stream,
 		in: make(chan interface{}),
 		out: make(chan interface{}),
-		filters: make(map[FilterId]filter),
 	}
 	go x.sender()
 	go x.receiver()
@@ -76,34 +75,48 @@ func (x *XMPP) AddFilter(fn FilterFn) (FilterId, chan interface{}) {
 
 	// Protect against concurrent access.
 	x.filterLock.Lock()
-	defer x.filterLock.Lock()
+	defer x.filterLock.Unlock()
 
-	// Create filter chan and add to map.
-	filterId := x.nextFilterId
-	x.nextFilterId ++
+	// Allocate chan and id.
 	ch := make(chan interface{})
-	x.filters[filterId] = filter{fn, ch}
+	id := x.nextFilterId
+	x.nextFilterId ++
 
-	return filterId, ch
+	// Insert at head of filters list.
+	filters := make([]filter, len(x.filters)+1)
+	filters[0] = filter{id, fn, ch}
+	copy(filters[1:], x.filters)
+	x.filters = filters
+
+	return id, ch
 }
 
 func (x *XMPP) RemoveFilter(id FilterId) error {
 
 	// Protect against concurrent access.
 	x.filterLock.Lock()
-	defer x.filterLock.Lock()
+	defer x.filterLock.Unlock()
 
 	// Find filter.
-	filter, ok := x.filters[id]
-	if !ok {
-		return id
+	for i, f := range x.filters {
+		if f.id != id {
+			continue
+		}
+
+		// Close the channel.
+		close(f.ch)
+
+		// Remove from list.
+		filters := make([]filter, len(x.filters)-1)
+		copy(filters, x.filters[:i])
+		copy(filters[i:], x.filters[i+1:])
+		x.filters = filters
+
+		return nil
 	}
 
-	// Close filter channel and remove from map.
-	close(filter.ch)
-	delete(x.filters, id)
-
-	return nil
+	// Filter not found.
+	return id
 }
 
 func IqResult(id string) FilterFn {
@@ -122,6 +135,7 @@ func IqResult(id string) FilterFn {
 type FilterFn func(v interface{}) bool
 
 type filter struct {
+	id FilterId
 	fn FilterFn
 	ch chan interface{}
 }
