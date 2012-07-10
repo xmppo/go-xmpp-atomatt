@@ -20,12 +20,11 @@ type XMPP struct {
 
 func newXMPP(jid JID, stream *Stream) *XMPP {
 	x := &XMPP{
-		jid,
-		stream,
-		make(chan interface{}),
-		make(chan interface{}),
-		0,
-		make(map[FilterId]filter),
+		JID: jid,
+		stream: stream,
+		in: make(chan interface{}),
+		out: make(chan interface{}),
+		filters: make(map[FilterId]filter),
 	}
 	go x.sender()
 	go x.receiver()
