@@ -120,15 +120,26 @@ type tlsProceed struct {
 }
 
 func authenticate(stream *Stream, mechanisms []string, user, password string) error {
-
-	log.Println("authenticate, mechanisms=", mechanisms)
-
-	if !stringSliceContains(mechanisms, "PLAIN") {
-		return errors.New("Only PLAIN supported for now")
+	for _, handler := range authHandlers {
+		if !stringSliceContains(mechanisms, handler.Mechanism) {
+			continue
+		}
+		if err := handler.Fn(stream, user, password); err == nil {
+			log.Printf("Authentication (%s) successful", handler.Mechanism)
+			return nil
+		}
 	}
-
-	return authenticatePlain(stream, user, password)
+	return errors.New("No supported SASL mechanism found.")
 }
+
+type authHandler struct {
+	Mechanism string
+	Fn func(*Stream, string, string) error
+}
+
+var authHandlers = []authHandler{
+		authHandler{"PLAIN", authenticatePlain},
+	}
 
 func authenticatePlain(stream *Stream, user, password string) error {
 	
