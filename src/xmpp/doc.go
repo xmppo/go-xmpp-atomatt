@@ -13,7 +13,7 @@
 		jid, err := xmpp.ParseJID("alice@wonderland.lit/some-resource")
 		addr, err := xmpp.HomeServerAddrs(jid)
 		stream, err := xmpp.NewStream(addr[0])
-		X, err := xmpp.NewClientXMPP(stream, jid, "password")
+		X, err := xmpp.NewClientXMPP(stream, jid, "password", nil)
 
 	Create a component:
 
