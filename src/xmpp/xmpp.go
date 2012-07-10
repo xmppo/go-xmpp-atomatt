@@ -40,8 +40,8 @@ func (x *XMPP) Send(v interface{}) {
 // Return the next stanza.
 func (x *XMPP) Recv() (interface{}, error) {
 	v := <-x.in
-	if e, ok := v.(error); ok {
-		return nil, e
+	if err, ok := v.(error); ok {
+		return nil, err
 	}
 	return v, nil
 }
