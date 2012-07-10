@@ -12,8 +12,12 @@ type XMPP struct {
 	// server during setup and so must be used for all messages.
 	JID JID
 	stream *Stream
+
+	// Stanza channels.
 	in chan interface{}
 	out chan interface{}
+
+	// Incoming stanza filters.
 	nextFilterId FilterId
 	filters map[FilterId]filter
 }
