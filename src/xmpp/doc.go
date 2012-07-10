@@ -33,7 +33,7 @@
 
 		for {
 			stanza, err := X.Recv()
-			if err == os.EOF {
+			if err == io.EOF {
 				break
 			}
 			log.Printf("%T : %v\n", stanza, stanza)
