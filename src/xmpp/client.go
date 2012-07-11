@@ -34,7 +34,7 @@ func NewClientXMPP(stream *Stream, jid JID, password string, config *ClientConfi
 
 		// Read features.
 		f := new(features)
-		if err := stream.Decode(f); err != nil {
+		if err := stream.Decode(f, nil); err != nil {
 			return nil, err
 		}
 
@@ -103,7 +103,7 @@ func startTLS(stream *Stream, config *ClientConfig) error {
 	}
 
 	p := tlsProceed{}
-	if err := stream.Decode(&p); err != nil {
+	if err := stream.Decode(&p, nil); err != nil {
 		return err
 	}
 
@@ -161,7 +161,7 @@ func authenticateResponse(stream *Stream) error {
 			return nil
 		case "failure":
 			f := new(saslFailure)
-			if err := stream.DecodeElement(f, se); err != nil {
+			if err := stream.Decode(f, se); err != nil {
 				return err
 			}
 			return fmt.Errorf("Authentication failed: %s", f.Reason.Local)
@@ -191,7 +191,7 @@ func bindResource(stream *Stream, jid JID) (JID, error) {
 	}
 
 	resp := Iq{}
-	err := stream.Decode(&resp)
+	err := stream.Decode(&resp, nil)
 	if err != nil {
 		return JID{}, err
 	}

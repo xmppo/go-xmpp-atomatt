@@ -171,7 +171,7 @@ func (x *XMPP) receiver() {
 			log.Fatal("Unexected element: %T %v", start, start)
 		}
 
-		err = x.stream.DecodeElement(v, start)
+		err = x.stream.Decode(v, start)
 		if err != nil {
 			log.Fatal(err)
 		}

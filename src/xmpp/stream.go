@@ -175,15 +175,11 @@ func (stream *Stream) Skip() error {
 	return stream.dec.Skip()
 }
 
-// Decode the next stanza. Works like xml.Unmarshal but reads from the stream's
-// connection.
-func (stream *Stream) Decode(v interface{}) error {
-	return stream.DecodeElement(v, nil)
-}
-
-// Decode the stanza with the given start element. Works like
-// xml.Decoder.DecodeElement.
-func (stream *Stream) DecodeElement(v interface{}, start *xml.StartElement) error {
+// Decode a stanza.
+// If start is not nil, the stanza for the start element that's already been
+// consumed is read. A nil start will read the next stanza in the stream.
+// See xml.Decoder.DecodeElement for decoding rules.
+func (stream *Stream) Decode(v interface{}, start *xml.StartElement) error {
 
 	// Explicity lookup next start element to ensure stream is validated,
 	// stanza is logged, etc.
