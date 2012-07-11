@@ -180,7 +180,7 @@ type saslAuth struct {
 
 func bindResource(stream *Stream, jid JID) (JID, error) {
 
-	req := Iq{Id: "foo", Type: "set"}
+	req := Iq{Id: UUID4(), Type: "set"}
 	if jid.Resource == "" {
 		req.PayloadEncode(bindIq{})
 	} else {
@@ -245,5 +245,3 @@ type saslFailure struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl failure"`
 	Reason xml.Name `xml:",any"`
 }
-
-// BUG(matt): Don't use "foo" as the <iq/> id during resource binding.
