@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/xml"
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -124,11 +123,10 @@ func (stream *Stream) send(b []byte) error {
 	return nil
 }
 
-// Find start of next stanza. If match is not nil the stanza's XML name
-// is compared and must be equal.
+// Find start of next stanza.
 // Bad things are very likely to happen if a call to Next() is successful but
 // you don't actually decode or skip the element.
-func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
+func (stream *Stream) Next() (*xml.StartElement, error) {
 
 	start, err := nextStartElement(stream.dec)
 	if err != nil {
@@ -142,10 +140,6 @@ func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 			stream.stanzaBuf = xml
 		}
 		log.Println("recv:", stream.stanzaBuf)
-	}
-
-	if match != nil && start.Name != *match {
-		return nil, fmt.Errorf("Expected %s, got %s", *match, start.Name)
 	}
 
 	return start, nil
@@ -194,7 +188,7 @@ func (stream *Stream) DecodeElement(v interface{}, start *xml.StartElement) erro
 	// Explicity lookup next start element to ensure stream is validated,
 	// stanza is logged, etc.
 	if start == nil {
-		if se, err := stream.Next(nil); err != nil {
+		if se, err := stream.Next(); err != nil {
 			return err
 		} else {
 			start = se

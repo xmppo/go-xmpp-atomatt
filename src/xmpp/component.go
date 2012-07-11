@@ -70,8 +70,12 @@ func handshake(stream *Stream, streamId, secret string) error {
 	}
 
 	// Get handshake response.
-	if _, err := stream.Next(&xml.Name{"jabber:component:accept", "handshake"}); err != nil {
+	if start, err := stream.Next(); err != nil {
 		return err
+	} else {
+		if start.Name != (xml.Name{"jabber:component:accept", "handshake"}) {
+			return fmt.Errorf("Expected <handshake/>, for %s", start.Name)
+		}
 	}
 	if err := stream.Skip(); err != nil {
 		return err

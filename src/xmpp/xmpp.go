@@ -151,7 +151,7 @@ func (x *XMPP) receiver() {
 	defer close(x.in)
 
 	for {
-		start, err := x.stream.Next(nil)
+		start, err := x.stream.Next()
 		if err != nil {
 			x.in <- err
 			return

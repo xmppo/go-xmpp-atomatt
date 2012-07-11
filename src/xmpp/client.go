@@ -150,7 +150,7 @@ func authenticatePlain(stream *Stream, user, password string) error {
 }
 
 func authenticateResponse(stream *Stream) error {
-	if se, err := stream.Next(nil); err != nil {
+	if se, err := stream.Next(); err != nil {
 		return err
 	} else {
 		switch se.Name.Local {
