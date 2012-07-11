@@ -116,11 +116,21 @@ func (stream *Stream) Skip() error {
 // Decode the next stanza. Works like xml.Unmarshal but reads from the stream's
 // connection.
 func (stream *Stream) Decode(v interface{}) error {
-	return stream.dec.Decode(v)
+	return stream.DecodeElement(v, nil)
 }
 
 // Decode the stanza with the given start element. Works like
 // xml.Decoder.DecodeElement.
 func (stream *Stream) DecodeElement(v interface{}, start *xml.StartElement) error {
+
+	// Explicity lookup next start element to ensure stream is validated.
+	if start == nil {
+		if se, err := stream.Next(nil); err != nil {
+			return err
+		} else {
+			start = se
+		}
+	}
+
 	return stream.dec.DecodeElement(v, start)
 }
