@@ -6,6 +6,8 @@ import (
 	"io"
 )
 
+type nsMap map[string]string
+
 // Write an xml.StartElement.
 func writeXMLStartElement(w io.Writer, start *xml.StartElement) error {
 	if _, err := w.Write([]byte{'<'}); err != nil {
@@ -21,6 +23,20 @@ func writeXMLStartElement(w io.Writer, start *xml.StartElement) error {
 		if err := writeXMLAttr(w, attr); err != nil {
 			return err
 		}
+	}
+	if _, err := w.Write([]byte{'>'}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Write an xml.StartElement.
+func writeXMLEndElement(w io.Writer, end *xml.EndElement) error {
+	if _, err := w.Write([]byte{'<', '/'}); err != nil {
+		return err
+	}
+	if err := writeXMLName(w, end.Name); err != nil {
+		return err
 	}
 	if _, err := w.Write([]byte{'>'}); err != nil {
 		return err
