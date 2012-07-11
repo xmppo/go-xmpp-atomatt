@@ -40,7 +40,7 @@ func NewStream(addr string) (*Stream, error) {
 	return stream, nil
 }
 
-// Upgrade the stream's underlying net conncetion to TLS.
+// Upgrade the stream's underlying net connection to TLS.
 func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 
 	conn := tls.Client(stream.conn, config)
