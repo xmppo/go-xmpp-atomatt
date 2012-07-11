@@ -19,7 +19,7 @@ func main() {
 	secret := *secret
 
 	// Create stream.
-	stream, err := xmpp.NewStream(addr)
+	stream, err := xmpp.NewStream(addr, &xmpp.StreamConfig{LogStanzas: true})
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -12,13 +12,13 @@
 
 		jid, err := xmpp.ParseJID("alice@wonderland.lit/some-resource")
 		addr, err := xmpp.HomeServerAddrs(jid)
-		stream, err := xmpp.NewStream(addr[0])
+		stream, err := xmpp.NewStream(addr[0], nil)
 		X, err := xmpp.NewClientXMPP(stream, jid, "password", nil)
 
 	Create a component:
 
 		jid, err := xmpp.ParseJID("rabbithole.wonderland.lit")
-		stream, err := xmpp.NewStream("localhost:5347")
+		stream, err := xmpp.NewStream("localhost:5347", nil)
 		X, err := xmpp.NewComponentXMPP(stream, jid, "secret")
 
 	Messages are sent using the XMPP.Send method, e.g. a client typically

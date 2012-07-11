@@ -15,16 +15,30 @@ const (
 	nsTLS = "urn:ietf:params:xml:ns:xmpp-tls"
 )
 
+// Stream configuration.
+type StreamConfig struct {
+	// Log all sent and received stanzas.
+	// Enabling this option causes stanzas to be buffered in memory before they
+	// are either sent to the server or delivered to the application. It also
+	// causes incoming stanzas to be XML-parsed a second time.
+	LogStanzas bool
+}
+
 type Stream struct {
 	conn net.Conn
 	dec *xml.Decoder
+	config *StreamConfig
 	stanzaBuf string
 	incomingNamespace nsMap
 }
 
 // Create a XML stream connection. A Steam is used by an XMPP instance to
 // handle sending and receiving XML data over the net connection.
-func NewStream(addr string) (*Stream, error) {
+func NewStream(addr string, config *StreamConfig) (*Stream, error) {
+
+	if config == nil {
+		config = &StreamConfig{}
+	}
 
 	log.Println("Connecting to", addr)
 
@@ -33,7 +47,7 @@ func NewStream(addr string) (*Stream, error) {
 		return nil, err
 	}
 
-	stream := &Stream{conn: conn, dec: xml.NewDecoder(conn)}
+	stream := &Stream{conn: conn, dec: xml.NewDecoder(conn), config: config}
 
 	if err := stream.send([]byte("<?xml version='1.0' encoding='utf-8'?>")); err != nil {
 		return nil, err
@@ -89,15 +103,21 @@ func (stream *Stream) SendStart(start *xml.StartElement) (*xml.StartElement, err
 
 // Send a stanza. Used to write a complete, top-level element.
 func (stream *Stream) Send(v interface{}) error {
-	bytes, err := xml.Marshal(v)
-	if err != nil {
-		return err
+	if stream.config.LogStanzas {
+		bytes, err := xml.Marshal(v)
+		if err != nil {
+			return err
+		}
+		return stream.send(bytes)
 	}
-	return stream.send(bytes)
+	enc := xml.NewEncoder(stream.conn)
+	return enc.Encode(v)
 }
 
 func (stream *Stream) send(b []byte) error {
-	log.Println("send:", string(b))
+	if stream.config.LogStanzas {
+		log.Println("send:", string(b))
+	}
 	if _, err := stream.conn.Write(b); err != nil {
 		return err
 	}
@@ -115,12 +135,14 @@ func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 		return nil, err
 	}
 
-	if xml, err := collectElement(stream.dec, start, stream.incomingNamespace); err != nil {
-		return nil, err
-	} else {
-		stream.stanzaBuf = xml
+	if stream.config.LogStanzas {
+		if xml, err := collectElement(stream.dec, start, stream.incomingNamespace); err != nil {
+			return nil, err
+		} else {
+			stream.stanzaBuf = xml
+		}
+		log.Println("recv:", stream.stanzaBuf)
 	}
-	log.Println("recv:", stream.stanzaBuf)
 
 	if match != nil && start.Name != *match {
 		return nil, fmt.Errorf("Expected %s, got %s", *match, start.Name)
@@ -152,8 +174,11 @@ func nextStartElement(dec *xml.Decoder) (*xml.StartElement, error) {
 // Skip reads tokens until it reaches the end element of the most recent start
 // element that has already been read.
 func (stream *Stream) Skip() error {
-	return nil
-//	return stream.dec.Skip()
+	if stream.config.LogStanzas && stream.stanzaBuf != "" {
+		stream.stanzaBuf = ""
+		return nil
+	}
+	return stream.dec.Skip()
 }
 
 // Decode the next stanza. Works like xml.Unmarshal but reads from the stream's
@@ -176,8 +201,11 @@ func (stream *Stream) DecodeElement(v interface{}, start *xml.StartElement) erro
 		}
 	}
 
-	return xml.Unmarshal([]byte(stream.stanzaBuf), v)
-//	return stream.dec.DecodeElement(v, start)
+	if stream.config.LogStanzas {
+		return xml.Unmarshal([]byte(stream.stanzaBuf), v)
+	}
+
+	return stream.dec.DecodeElement(v, start)
 }
 
 // Collect the element with the start that's already been consumed into a

@@ -20,7 +20,7 @@ func main() {
 	password := *password
 
 	// Create stream.
-	stream, err := xmpp.NewStream(jid.Domain + ":5222")
+	stream, err := xmpp.NewStream(jid.Domain + ":5222", &xmpp.StreamConfig{LogStanzas: true})
 	if err != nil {
 		log.Fatal(err)
 	}
