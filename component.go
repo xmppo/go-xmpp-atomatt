@@ -13,22 +13,13 @@ var (
 )
 
 func main() {
+
 	flag.Parse()
-	addr := *addr
-	jid, _ := xmpp.ParseJID(*jid)
-	secret := *secret
 
-	// Create stream.
-	stream, err := xmpp.NewStream(addr, &xmpp.StreamConfig{LogStanzas: true})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Configure stream as a component connection.
-	x, err := xmpp.NewComponentXMPP(stream, jid, secret)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Create stream and configure it as a component connection.
+	jid := must(xmpp.ParseJID(*jid)).(xmpp.JID)
+	stream := must(xmpp.NewStream(*addr, &xmpp.StreamConfig{LogStanzas: true})).(*xmpp.Stream)
+	x := must(xmpp.NewComponentXMPP(stream, jid, *secret)).(*xmpp.XMPP)
 
 	for {
 		v, err := x.Recv()
@@ -37,4 +28,11 @@ func main() {
 		}
 		log.Printf("recv: %v", v)
 	}
+}
+
+func must(v interface{}, err error) interface{} {
+	if err != nil {
+		log.Fatal(err)
+	}
+	return v
 }

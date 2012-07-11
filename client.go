@@ -14,29 +14,19 @@ var (
 
 func main() {
 
-	// Parse args.
 	flag.Parse()
-	jid, _ := xmpp.ParseJID(*jid)
-	password := *password
 
-	// Create stream.
-	stream, err := xmpp.NewStream(jid.Domain + ":5222", &xmpp.StreamConfig{LogStanzas: true})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Configure stream as a client connection.
-	x, err := xmpp.NewClientXMPP(stream, jid, password, &xmpp.ClientConfig{InsecureSkipVerify: true})
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Create stream and configure it as a client connection.
+	jid := must(xmpp.ParseJID(*jid)).(xmpp.JID)
+	stream := must(xmpp.NewStream(jid.Domain + ":5222", &xmpp.StreamConfig{LogStanzas: true})).(*xmpp.Stream)
+	x := must(xmpp.NewClientXMPP(stream, jid, *password, &xmpp.ClientConfig{InsecureSkipVerify: true})).(*xmpp.XMPP)
 
 	log.Printf("Connection established for %s\n", x.JID)
 
 	// Announce presence.
 	x.Send(xmpp.Presence{})
 
-	// Filter messages into dedicated channel and start a thread to log them.
+	// Filter messages into dedicated channel and start a goroutine to log them.
 	_, messages := x.AddFilter(
 		func(v interface{}) bool {
 			_, ok := v.(*xmpp.Message)
@@ -69,6 +59,13 @@ func main() {
 	log.Printf("* info: %v\n", info)
 
 	select {}
+}
+
+func must(v interface{}, err error) interface{} {
+	if err != nil {
+		log.Fatal(err)
+	}
+	return v
 }
 
 type DiscoInfo struct {
