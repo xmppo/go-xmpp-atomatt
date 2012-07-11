@@ -107,8 +107,8 @@ func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 	panic("Unreachable")
 }
 
-// Skip reads tokens until it has reaches the end element of the most recent
-// start element that has already been read.
+// Skip reads tokens until it reaches the end element of the most recent start
+// element that has already been read.
 func (stream *Stream) Skip() error {
 	return stream.dec.Skip()
 }
