@@ -1,12 +1,12 @@
 /*
-	Tools for implementing XMPP clients and components.
+	Package for implementing XMPP clients and components.
 
-	The package is built on the concept of an XML stream - a pair of XML
+	The package is built around the concept of an XML stream - a pair of XML
 	documents written to and read from a TCP connection. Top-level elements in
 	the document form the messages processed by either end of the connection.
 
 	An XML stream is then configured for an XMPP conversation, as either a
-	client (chat, etc client) or component (a sort of server plugin).
+	client (chat, etc) or component (a sort of server plugin).
 
 	Create a client:
 

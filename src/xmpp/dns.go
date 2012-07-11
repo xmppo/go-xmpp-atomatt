@@ -6,11 +6,13 @@ import (
 )
 
 const (
+	// Standard port for XMPP clients to connect to.
 	XMPP_CLIENT_PORT = 5222
 )
 
 // Perform a DNS SRV lookup and return an ordered list of "host:port" TCP
-// addresses for the JID's home server.
+// addresses for the JID's home server. If no SRV records are found then assume
+// the JID's domain is also the home server.
 func HomeServerAddrs(jid JID) (addr []string, err error) {
 
 	// DNS lookup.

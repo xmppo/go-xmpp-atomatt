@@ -6,8 +6,8 @@ import (
 	"sync"
 )
 
-// Handles XMPP conversations over a Stream. Use NewClientXMPP and/or
-// NewComponentXMPP to create and configuring a XMPP instance.
+// Handles XMPP conversations over a Stream. Use NewClientXMPP or
+// NewComponentXMPP to create and configure a XMPP instance.
 type XMPP struct {
 	// JID associated with the stream. Note: this may be negotiated with the
 	// server during setup and so must be used for all messages.
