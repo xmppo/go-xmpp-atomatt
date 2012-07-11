@@ -55,12 +55,19 @@ func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 }
 
 // Send the element's start tag. Typically used to open the stream's document.
-func (stream *Stream) SendStart(start *xml.StartElement) error {
+func (stream *Stream) SendStart(start *xml.StartElement) (*xml.StartElement, error) {
+
+	// Write start of outgoing doc.
 	buf := new(bytes.Buffer)
 	if err := writeXMLStartElement(buf, start); err != nil {
-		return err
+		return nil, err
 	}
-	return stream.send(buf.Bytes())
+	if err := stream.send(buf.Bytes()); err != nil {
+		return nil, err
+	}
+
+	// Read and return start of incoming doc.
+	return nextStartElement(stream.dec)
 }
 
 // Send a stanza. Used to write a complete, top-level element.
@@ -85,8 +92,19 @@ func (stream *Stream) send(b []byte) error {
 // Bad things are very likely to happen if a call to Next() is successful but
 // you don't actually decode or skip the element.
 func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
+	start, err := nextStartElement(stream.dec)
+	if err != nil {
+		return nil, err
+	}
+	if match != nil && start.Name != *match {
+		return nil, fmt.Errorf("Expected %s, got %s", *match, start.Name)
+	}
+	return start, nil
+}
+
+func nextStartElement(dec *xml.Decoder) (*xml.StartElement, error) {
 	for {
-		t, err := stream.dec.Token()
+		t, err := dec.Token()
 		if err != nil {
 			if err == io.EOF {
 				err = io.ErrUnexpectedEOF
@@ -95,9 +113,6 @@ func (stream *Stream) Next(match *xml.Name) (*xml.StartElement, error) {
 		}
 		switch e := t.(type) {
 		case xml.StartElement:
-			if match != nil && e.Name != *match {
-				return nil, fmt.Errorf("Expected %s, got %s", *match, e.Name)
-			}
 			return &e, nil
 		case xml.EndElement:
 			log.Printf("EOF due to %s\n", e.Name)

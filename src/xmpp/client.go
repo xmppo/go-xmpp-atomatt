@@ -85,12 +85,12 @@ func startClient(stream *Stream, jid JID) error {
 		},
 	}
 
-	if err := stream.SendStart(&start); err != nil {
+	if rstart, err := stream.SendStart(&start); err != nil {
 		return err
-	}
-
-	if _, err := stream.Next(&xml.Name{nsStream, "stream"}); err != nil {
-		return err
+	} else {
+		if rstart.Name != (xml.Name{nsStream, "stream"}) {
+			return fmt.Errorf("unexpected start element: %s", rstart.Name)
+		}
 	}
 
 	return nil

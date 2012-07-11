@@ -33,24 +33,25 @@ func startComponent(stream *Stream, jid JID) (string, error) {
 		},
 	}
 
-	if err := stream.SendStart(&start); err != nil {
-		return "", err
-	}
+	var streamId string
 
-	streamId := ""
-	if e, err := stream.Next(&xml.Name{nsStream, "stream"}); err != nil {
+	if rstart, err := stream.SendStart(&start); err != nil {
 		return "", err
 	} else {
+		if rstart.Name != (xml.Name{nsStream, "stream"}) {
+			return "", fmt.Errorf("unexpected start element: %s", rstart.Name)
+		}
 		// Find the stream id.
-		for _, attr := range e.Attr {
+		for _, attr := range rstart.Attr {
 			if attr.Name.Local == "id" {
 				streamId = attr.Value
 				break
 			}
 		}
-		if streamId == "" {
-			return "", errors.New("Missing stream id")
-		}
+	}
+
+	if streamId == "" {
+		return "", errors.New("Missing stream id")
 	}
 
 	return streamId, nil
