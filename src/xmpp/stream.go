@@ -56,26 +56,10 @@ func (stream *Stream) UpgradeTLS(config *tls.Config) error {
 
 // Send the element's start tag. Typically used to open the stream's document.
 func (stream *Stream) SendStart(start *xml.StartElement) error {
-
 	buf := new(bytes.Buffer)
-	if _, err := buf.Write([]byte{'<'}); err != nil {
+	if err := writeXMLStartElement(buf, start); err != nil {
 		return err
 	}
-	if err := writeXMLName(buf, start.Name); err != nil {
-		return err
-	}
-	for _, attr := range start.Attr {
-		if _, err := buf.Write([]byte{' '}); err != nil {
-			return err
-		}
-		if err := writeXMLAttr(buf, attr); err != nil {
-			return err
-		}
-	}
-	if _, err := buf.Write([]byte{'>'}); err != nil {
-		return err
-	}
-
 	return stream.send(buf.Bytes())
 }
 

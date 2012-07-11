@@ -6,6 +6,28 @@ import (
 	"io"
 )
 
+// Write an xml.StartElement.
+func writeXMLStartElement(w io.Writer, start *xml.StartElement) error {
+	if _, err := w.Write([]byte{'<'}); err != nil {
+		return err
+	}
+	if err := writeXMLName(w, start.Name); err != nil {
+		return err
+	}
+	for _, attr := range start.Attr {
+		if _, err := w.Write([]byte{' '}); err != nil {
+			return err
+		}
+		if err := writeXMLAttr(w, attr); err != nil {
+			return err
+		}
+	}
+	if _, err := w.Write([]byte{'>'}); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Write a xml.Name.
 func writeXMLName(w io.Writer, name xml.Name) error {
 	if name.Space == "" {
