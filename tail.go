@@ -36,7 +36,7 @@ func main() {
 	}
 
 	// Create stream.
-	stream, err := xmpp.NewStream(addr)
+	stream, err := xmpp.NewStream(addr, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
