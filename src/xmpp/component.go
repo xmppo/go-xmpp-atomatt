@@ -85,6 +85,6 @@ func handshake(stream *Stream, streamId, secret string) error {
 }
 
 type saslHandshake struct {
-	XMLName xml.Name `xml:"handshake"`
+	XMLName xml.Name `xml:"jabber:component:accept handshake"`
 	Value string `xml:",chardata"`
 }
