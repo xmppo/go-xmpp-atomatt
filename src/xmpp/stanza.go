@@ -1,6 +1,9 @@
 package xmpp
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+)
 
 // XMPP <iq/> stanza.
 type Iq struct {
@@ -10,6 +13,7 @@ type Iq struct {
 	To string `xml:"to,attr,omitempty"`
 	From string `xml:"from,attr,omitempty"`
 	Payload string `xml:",innerxml"`
+	Error *Error `xml:"error"`
 }
 
 // Encode the value to an XML string and set as the payload. See xml.Marshal
@@ -49,7 +53,14 @@ type Presence struct {
 	From string `xml:"from,attr,omitempty"`
 }
 
-// XMPP <error/> stanza.
+// XMPP <error/>. May occur as a top-level stanza or embedded in another
+// stanza, e.g. an <iq type="error"/>.
 type Error struct {
 	XMLName xml.Name `xml:"error"`
+	Type string `xml:"type,attr"`
+	Text string `xml:"text"`
+}
+
+func (e Error) Error() string {
+	return fmt.Sprintf("%s: %s", e.Type, e.Text)
 }
