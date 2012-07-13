@@ -66,6 +66,14 @@ func NewClientXMPP(stream *Stream, jid JID, password string, config *ClientConfi
 			jid = boundJID
 		}
 
+		// Session.
+		if f.Session != nil {
+			log.Println("Establishing session.")
+			if err := establishSession(stream, jid.Domain); err != nil {
+				return nil, err
+			}
+		}
+
 		break
 	}
 
@@ -208,6 +216,24 @@ type bindIq struct {
 	JID string `xml:"jid,omitempty"`
 }
 
+func establishSession(stream *Stream, domain string) error {
+
+	req := Iq{Id: UUID4(), Type: "set", To: domain}
+	req.PayloadEncode(&session{})
+	if err := stream.Send(req); err != nil {
+		return err
+	}
+
+	resp := Iq{}
+	if err := stream.Decode(&resp, nil); err != nil {
+		return err
+	} else if resp.Error != nil {
+		return resp.Error
+	}
+
+	return nil
+}
+
 func stringSliceContains(l []string, m string) bool {
 	for _, i := range l {
 		if i == m {
@@ -222,6 +248,11 @@ type features struct {
 	StartTLS *tlsStartTLS `xml:"starttls"`
 	Mechanisms *mechanisms `xml:"mechanisms"`
 	Bind *bind `xml:"bind"`
+	Session *session `xml:"session"`
+}
+
+type session struct {
+	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-session session"`
 }
 
 type bind struct {
