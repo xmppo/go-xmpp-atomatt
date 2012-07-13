@@ -11,6 +11,7 @@ var (
 	skipverify = false
 	jid        = ""
 	pass       = ""
+	debug	 = false
 )
 
 func init() {
@@ -18,6 +19,7 @@ func init() {
 	flag.BoolVar(&skipverify, "skipverify", false, "Skip TLS certificate verification.")
 	flag.StringVar(&jid, "jid", "", "User's JID, e.g. alice@wonderland.lit/chat.")
 	flag.StringVar(&pass, "pass", "", "User's password.")
+	flag.BoolVar(&debug, "debug", false, "Log stanzas")
 }
 
 func main() {
@@ -36,7 +38,7 @@ func main() {
 	}
 
 	// Create stream.
-	stream, err := xmpp.NewStream(addr, nil)
+	stream, err := xmpp.NewStream(addr, &xmpp.StreamConfig{LogStanzas: debug})
 	if err != nil {
 		log.Fatal(err)
 	}
