@@ -1,6 +1,7 @@
 package xmpp
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 )
@@ -31,6 +32,20 @@ func (iq *Iq) PayloadEncode(v interface{}) error {
 // for how the value is decoded.
 func (iq *Iq) PayloadDecode(v interface{}) error {
 	return xml.Unmarshal([]byte(iq.Payload), v)
+}
+
+// Return the name of the payload element.
+func (iq *Iq) PayloadName() (name xml.Name) {
+	dec := xml.NewDecoder(bytes.NewBufferString(iq.Payload))
+	tok, err := dec.Token()
+	if err != nil {
+		return
+	}
+	start, ok := tok.(xml.StartElement)
+	if !ok {
+		return
+	}
+	return start.Name
 }
 
 // XMPP <message/> stanza.
