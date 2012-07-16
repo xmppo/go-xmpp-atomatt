@@ -276,3 +276,6 @@ type saslFailure struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl failure"`
 	Reason xml.Name `xml:",any"`
 }
+
+// BUG(matt): authentication incorrectly reports, "No supported SASL mechanism
+// found", for authentication attemtps that fail due to invalid credentials.

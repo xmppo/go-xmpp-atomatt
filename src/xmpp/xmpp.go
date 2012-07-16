@@ -204,3 +204,5 @@ func (x *XMPP) receiver() {
 		}
 	}
 }
+
+// BUG(matt): Filter channels are not closed when the stream is closed.
