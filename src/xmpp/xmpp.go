@@ -71,7 +71,7 @@ func (fid FilterId) Error() string {
 	return fmt.Sprintf("Invalid filter id: %d", fid)
 }
 
-func (x *XMPP) AddFilter(fn FilterFn) (FilterId, chan interface{}) {
+func (x *XMPP) AddFilter(m Matcher) (FilterId, chan interface{}) {
 
 	// Protect against concurrent access.
 	x.filterLock.Lock()
@@ -84,7 +84,7 @@ func (x *XMPP) AddFilter(fn FilterFn) (FilterId, chan interface{}) {
 
 	// Insert at head of filters list.
 	filters := make([]filter, len(x.filters)+1)
-	filters[0] = filter{id, fn, ch}
+	filters[0] = filter{id, m, ch}
 	copy(filters[1:], x.filters)
 	x.filters = filters
 
@@ -119,24 +119,39 @@ func (x *XMPP) RemoveFilter(id FilterId) error {
 	return id
 }
 
-func IqResult(id string) FilterFn {
-	return func(v interface{}) bool {
-		iq, ok := v.(*Iq)
-		if !ok {
-			return false
-		}
-		if iq.Id != id {
-			return false
-		}
-		return true
-	}
+func IqResult(id string) Matcher {
+	return MatcherFunc(
+		func(v interface{}) bool {
+			iq, ok := v.(*Iq)
+			if !ok {
+				return false
+			}
+			if iq.Id != id {
+				return false
+			}
+			return true
+		},
+	)
 }
 
-type FilterFn func(v interface{}) bool
+// Interface used to test if a stanza matches some application-defined
+// conditions.
+type Matcher interface {
+	// Return true if the stanza, v, matches.
+	Match(v interface{}) (match bool)
+}
+
+// Adapter to allow a plain func to be used as a Matcher.
+type MatcherFunc func(v interface{}) bool
+
+// Implement Matcher by calling the adapted func.
+func (fn MatcherFunc) Match(v interface{}) bool {
+	return fn(v)
+}
 
 type filter struct {
 	id FilterId
-	fn FilterFn
+	m Matcher
 	ch chan interface{}
 }
 
@@ -178,7 +193,7 @@ func (x *XMPP) receiver() {
 
 		filtered := false
 		for _, filter := range x.filters {
-			if filter.fn(v) {
+			if filter.m.Match(v) {
 				filter.ch <- v
 				filtered = true
 			}

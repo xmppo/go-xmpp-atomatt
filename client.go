@@ -28,10 +28,12 @@ func main() {
 
 	// Filter messages into dedicated channel and start a goroutine to log them.
 	_, messages := x.AddFilter(
-		func(v interface{}) bool {
-			_, ok := v.(*xmpp.Message)
-			return ok
-		},
+		xmpp.MatcherFunc(
+			func(v interface{}) bool {
+				_, ok := v.(*xmpp.Message)
+				return ok
+			},
+		),
 	)
 	go func() {
 		for message := range messages {
