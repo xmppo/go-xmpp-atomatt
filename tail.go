@@ -51,14 +51,10 @@ func main() {
 	}
 
 	// Signal presence.
-	x.Send(xmpp.Presence{})
+	x.Out <- xmpp.Presence{}
 
 	// Log anything that arrives.
-	for {
-		stanza, err := x.Recv()
-		if err != nil {
-			log.Fatal(err)
-		}
+	for stanza := range x.In {
 		log.Printf("recv: %T %v", stanza, stanza)
 	}
 }

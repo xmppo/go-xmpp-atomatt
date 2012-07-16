@@ -9,14 +9,21 @@ import (
 // Handles XMPP conversations over a Stream. Use NewClientXMPP or
 // NewComponentXMPP to create and configure a XMPP instance.
 type XMPP struct {
+
 	// JID associated with the stream. Note: this may be negotiated with the
 	// server during setup and so must be used for all messages.
 	JID JID
 	stream *Stream
 
-	// Stanza channels.
-	in chan interface{}
-	out chan interface{}
+	// Channel of incoming messages. Values will be one of Iq, Message,
+	// Presence, Error or error. Will be closed at the end when the stream is
+	// closed or the stream's net connection dies.
+	In chan interface{}
+
+	// Channel of outgoing messages. Messages must be able to be marshaled by
+	// the standard xml package, however you should try to send one of Iq,
+	// Message or Presence.
+	Out chan interface{}
 
 	// Incoming stanza filters.
 	filterLock sync.Mutex
@@ -28,26 +35,12 @@ func newXMPP(jid JID, stream *Stream) *XMPP {
 	x := &XMPP{
 		JID: jid,
 		stream: stream,
-		in: make(chan interface{}),
-		out: make(chan interface{}),
+		In: make(chan interface{}),
+		Out: make(chan interface{}),
 	}
 	go x.sender()
 	go x.receiver()
 	return x
-}
-
-// Send a stanza.
-func (x *XMPP) Send(v interface{}) {
-	x.out <- v
-}
-
-// Return the next stanza.
-func (x *XMPP) Recv() (interface{}, error) {
-	v := <-x.in
-	if err, ok := v.(error); ok {
-		return nil, err
-	}
-	return v, nil
 }
 
 func (x *XMPP) SendRecv(iq *Iq) (*Iq, error) {
@@ -55,7 +48,7 @@ func (x *XMPP) SendRecv(iq *Iq) (*Iq, error) {
 	fid, ch := x.AddFilter(IqResult(iq.Id))
 	defer x.RemoveFilter(fid)
 
-	x.Send(iq)
+	x.Out <- iq
 
 	stanza := <-ch
 	reply, ok := stanza.(*Iq)
@@ -156,19 +149,19 @@ type filter struct {
 }
 
 func (x *XMPP) sender() {
-	for v := range x.out {
+	for v := range x.Out {
 		x.stream.Send(v)
 	}
 }
 
 func (x *XMPP) receiver() {
 
-	defer close(x.in)
+	defer close(x.In)
 
 	for {
 		start, err := x.stream.Next()
 		if err != nil {
-			x.in <- err
+			x.In <- err
 			return
 		}
 
@@ -200,7 +193,7 @@ func (x *XMPP) receiver() {
 		}
 
 		if !filtered {
-			x.in <- v
+			x.In <- v
 		}
 	}
 }

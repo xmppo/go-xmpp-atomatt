@@ -19,15 +19,15 @@ func main() {
 	// Create stream and configure it as a client connection.
 	jid := must(xmpp.ParseJID(*jid)).(xmpp.JID)
 	stream := must(xmpp.NewStream(jid.Domain + ":5222", &xmpp.StreamConfig{LogStanzas: true})).(*xmpp.Stream)
-	x := must(xmpp.NewClientXMPP(stream, jid, *password, &xmpp.ClientConfig{InsecureSkipVerify: true})).(*xmpp.XMPP)
+	client := must(xmpp.NewClientXMPP(stream, jid, *password, &xmpp.ClientConfig{InsecureSkipVerify: true})).(*xmpp.XMPP)
 
-	log.Printf("Connection established for %s\n", x.JID)
+	log.Printf("Connection established for %s\n", client.JID)
 
 	// Announce presence.
-	x.Send(xmpp.Presence{})
+	client.Out <- xmpp.Presence{}
 
 	// Filter messages into dedicated channel and start a goroutine to log them.
-	_, messages := x.AddFilter(
+	_, messages := client.AddFilter(
 		xmpp.MatcherFunc(
 			func(v interface{}) bool {
 				_, ok := v.(*xmpp.Message)
@@ -43,20 +43,16 @@ func main() {
 
 	// Log any stanzas that are not handled elsewhere.
 	go func() {
-		for {
-			stanza, err := x.Recv()
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Printf("* recv: %v\n", stanza)
+		for x := range client.In {
+			log.Printf("* recv: %v\n", x)
 		}
 	}()
 
 	// Get disco#info for home server.
 	info := &DiscoInfo{}
-	iq := xmpp.Iq{Id: xmpp.UUID4(), Type: "get", To: x.JID.Domain}
+	iq := xmpp.Iq{Id: xmpp.UUID4(), Type: "get", To: client.JID.Domain}
 	iq.PayloadEncode(info)
-	reply, _ := x.SendRecv(&iq)
+	reply, _ := client.SendRecv(&iq)
 	reply.PayloadDecode(info)
 	log.Printf("* info: %v\n", info)
 

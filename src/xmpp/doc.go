@@ -21,22 +21,30 @@
 		stream, err := xmpp.NewStream("localhost:5347", nil)
 		X, err := xmpp.NewComponentXMPP(stream, jid, "secret")
 
-	Messages are sent using the XMPP.Send method, e.g. a client typically
-	announces its presence on the XMPP network as soon as it's connected:
+	Outgoing XMPP stanzas are sent to the XMPP instance's Out channel, e.g. a
+	client typically announces its presence on the XMPP network as soon as it's
+	connected:
 
-		X.Send(xmpp.Presence{})
+		X.Out <- xmpp.Presence{}
 
-	Incoming messages can be received in a simple loop, ended by an os.EOF for
-	clean shutdown or any other error for something unexpected. XMPP defines
-	four types of stanza: <error/>, <iq/>, <message/> and <presence/>
-	represented by Error, Iq, Message and Presence structs respectively.
+	Incoming messages are handled by consuming the XMPP instance's In channel.
+	The channel is sent all XMPP stanzas as well as terminating error (io.EOF
+	for clean shutdown or any other error for something unexpected). The
+	channel is also closed after an error.
+	
+	XMPP defines four types of stanza: <error/>, <iq/>, <message/> and
+	<presence/> represented by Error, Iq, Message (shown below) and Presence
+	structs respectively.
 
-		for {
-			stanza, err := X.Recv()
-			if err == io.EOF {
-				break
+		for i := range X.In {
+			switch v := i.(type) {
+			case error:
+				log.Printf("error : %v\n", v)
+			case *xmpp.Message:
+				log.Printf("msg : %s says %s\n", v.From, v.Body)
+			default:
+				log.Printf("%T : %v\n", v, v)
 			}
-			log.Printf("%T : %v\n", stanza, stanza)
 		}
 
 	Note: A "bound" JID is negotatiated during XMPP setup and may be different

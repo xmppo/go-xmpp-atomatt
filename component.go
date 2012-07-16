@@ -19,14 +19,10 @@ func main() {
 	// Create stream and configure it as a component connection.
 	jid := must(xmpp.ParseJID(*jid)).(xmpp.JID)
 	stream := must(xmpp.NewStream(*addr, &xmpp.StreamConfig{LogStanzas: true})).(*xmpp.Stream)
-	x := must(xmpp.NewComponentXMPP(stream, jid, *secret)).(*xmpp.XMPP)
+	comp := must(xmpp.NewComponentXMPP(stream, jid, *secret)).(*xmpp.XMPP)
 
-	for {
-		v, err := x.Recv()
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Printf("recv: %v", v)
+	for x := range comp.In {
+		log.Printf("recv: %v", x)
 	}
 }
 
