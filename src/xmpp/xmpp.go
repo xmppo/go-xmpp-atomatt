@@ -73,8 +73,11 @@ func (fn MatcherFunc) Match(v interface{}) bool {
 	return fn(v)
 }
 
+// Uniquly identifies a stream fiter. Used to remove a filter that's no longer
+// needed.
 type FilterId int64
 
+// Implements the error interface for a FilterId.
 func (fid FilterId) Error() string {
 	return fmt.Sprintf("Invalid filter id: %d", fid)
 }
@@ -85,6 +88,9 @@ type filter struct {
 	ch chan interface{}
 }
 
+// Add a filter that routes matching stanzas to the returned channel. A
+// FilterId is also returned and can be pased to RemoveFilter to remove the
+// filter again.
 func (x *XMPP) AddFilter(m Matcher) (FilterId, chan interface{}) {
 
 	// Protect against concurrent access.
@@ -105,6 +111,7 @@ func (x *XMPP) AddFilter(m Matcher) (FilterId, chan interface{}) {
 	return id, ch
 }
 
+// Remove a filter previously added with AddFilter.
 func (x *XMPP) RemoveFilter(id FilterId) error {
 
 	// Protect against concurrent access.
@@ -133,6 +140,8 @@ func (x *XMPP) RemoveFilter(id FilterId) error {
 	return id
 }
 
+// Matcher to identify a <iq id="..." type="result" /> stanza with the given
+// id.
 func IqResult(id string) Matcher {
 	return MatcherFunc(
 		func(v interface{}) bool {
