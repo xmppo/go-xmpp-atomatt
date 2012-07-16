@@ -58,10 +58,31 @@ func (x *XMPP) SendRecv(iq *Iq) (*Iq, error) {
 	return reply, nil
 }
 
+// Interface used to test if a stanza matches some application-defined
+// conditions.
+type Matcher interface {
+	// Return true if the stanza, v, matches.
+	Match(v interface{}) (match bool)
+}
+
+// Adapter to allow a plain func to be used as a Matcher.
+type MatcherFunc func(v interface{}) bool
+
+// Implement Matcher by calling the adapted func.
+func (fn MatcherFunc) Match(v interface{}) bool {
+	return fn(v)
+}
+
 type FilterId int64
 
 func (fid FilterId) Error() string {
 	return fmt.Sprintf("Invalid filter id: %d", fid)
+}
+
+type filter struct {
+	id FilterId
+	m Matcher
+	ch chan interface{}
 }
 
 func (x *XMPP) AddFilter(m Matcher) (FilterId, chan interface{}) {
@@ -125,27 +146,6 @@ func IqResult(id string) Matcher {
 			return true
 		},
 	)
-}
-
-// Interface used to test if a stanza matches some application-defined
-// conditions.
-type Matcher interface {
-	// Return true if the stanza, v, matches.
-	Match(v interface{}) (match bool)
-}
-
-// Adapter to allow a plain func to be used as a Matcher.
-type MatcherFunc func(v interface{}) bool
-
-// Implement Matcher by calling the adapted func.
-func (fn MatcherFunc) Match(v interface{}) bool {
-	return fn(v)
-}
-
-type filter struct {
-	id FilterId
-	m Matcher
-	ch chan interface{}
 }
 
 func (x *XMPP) sender() {
