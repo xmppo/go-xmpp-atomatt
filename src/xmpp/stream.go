@@ -9,11 +9,6 @@ import (
 	"net"
 )
 
-const (
-	nsStream = "http://etherx.jabber.org/streams"
-	nsTLS = "urn:ietf:params:xml:ns:xmpp-tls"
-)
-
 // Stream configuration.
 type StreamConfig struct {
 	// Log all sent and received stanzas.

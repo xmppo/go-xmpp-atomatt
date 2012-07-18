@@ -27,8 +27,8 @@ func startComponent(stream *Stream, jid JID) (string, error) {
 	start := xml.StartElement{
 		xml.Name{"stream", "stream"},
 		[]xml.Attr{
-			xml.Attr{xml.Name{"", "xmlns"}, "jabber:component:accept"},
-			xml.Attr{xml.Name{"xmlns", "stream"}, "http://etherx.jabber.org/streams"},
+			xml.Attr{xml.Name{"", "xmlns"}, nsComponentAccept},
+			xml.Attr{xml.Name{"xmlns", "stream"}, nsStreams},
 			xml.Attr{xml.Name{"", "to"}, jid.Full()},
 		},
 	}
@@ -38,7 +38,7 @@ func startComponent(stream *Stream, jid JID) (string, error) {
 	if rstart, err := stream.SendStart(&start); err != nil {
 		return "", err
 	} else {
-		if rstart.Name != (xml.Name{nsStream, "stream"}) {
+		if rstart.Name != (xml.Name{nsStreams, "stream"}) {
 			return "", fmt.Errorf("unexpected start element: %s", rstart.Name)
 		}
 		// Find the stream id.
@@ -73,7 +73,7 @@ func handshake(stream *Stream, streamId, secret string) error {
 	if start, err := stream.Next(); err != nil {
 		return err
 	} else {
-		if start.Name != (xml.Name{"jabber:component:accept", "handshake"}) {
+		if start.Name != (xml.Name{nsComponentAccept, "handshake"}) {
 			return fmt.Errorf("Expected <handshake/>, for %s", start.Name)
 		}
 	}

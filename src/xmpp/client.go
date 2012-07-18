@@ -85,8 +85,8 @@ func startClient(stream *Stream, jid JID) error {
 	start := xml.StartElement{
 		xml.Name{"stream", "stream"},
 		[]xml.Attr{
-			xml.Attr{xml.Name{"", "xmlns"}, "jabber:client"},
-			xml.Attr{xml.Name{"xmlns", "stream"}, "http://etherx.jabber.org/streams"},
+			xml.Attr{xml.Name{"", "xmlns"}, nsClient},
+			xml.Attr{xml.Name{"xmlns", "stream"}, nsStreams},
 			xml.Attr{xml.Name{"", "from"}, jid.Full()},
 			xml.Attr{xml.Name{"", "to"}, jid.Domain},
 			xml.Attr{xml.Name{"", "version"}, "1.0"},
@@ -96,7 +96,7 @@ func startClient(stream *Stream, jid JID) error {
 	if rstart, err := stream.SendStart(&start); err != nil {
 		return err
 	} else {
-		if rstart.Name != (xml.Name{nsStream, "stream"}) {
+		if rstart.Name != (xml.Name{nsStreams, "stream"}) {
 			return fmt.Errorf("unexpected start element: %s", rstart.Name)
 		}
 	}
