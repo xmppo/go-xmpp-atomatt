@@ -48,6 +48,12 @@ func (iq *Iq) PayloadName() (name xml.Name) {
 	return start.Name
 }
 
+// Create a response Iq. The Id is kept, To and From are reversed, Type is set
+// to the given value.
+func (iq *Iq) Response(type_ string) *Iq {
+	return &Iq{Id: iq.Id, Type: type_, From: iq.To, To: iq.From}
+}
+
 // XMPP <message/> stanza.
 type Message struct {
 	XMLName xml.Name `xml:"message"`
