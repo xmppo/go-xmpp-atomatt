@@ -1,6 +1,7 @@
 package xmpp
 
 import (
+	"encoding/xml"
 	"fmt"
 	"log"
 	"sync"
@@ -8,6 +9,8 @@ import (
 
 // Handles XMPP conversations over a Stream. Use NewClientXMPP or
 // NewComponentXMPP to create and configure a XMPP instance.
+// Close the conversation by closing the Out channel, the In channel will be
+// closed when the remote server closes its stream.
 type XMPP struct {
 
 	// JID associated with the stream. Note: this may be negotiated with the
@@ -158,9 +161,15 @@ func IqResult(id string) Matcher {
 }
 
 func (x *XMPP) sender() {
+
+	// Send outgoing elements to the stream until the channel is closed.
 	for v := range x.Out {
 		x.stream.Send(v)
 	}
+
+	// Close the stream. Note: relies on common element name for all types of
+	// XMPP connection.
+	x.stream.SendEnd(&xml.EndElement{xml.Name{"stream", "stream"}})
 }
 
 func (x *XMPP) receiver() {

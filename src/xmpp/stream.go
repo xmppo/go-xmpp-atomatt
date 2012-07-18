@@ -95,6 +95,18 @@ func (stream *Stream) SendStart(start *xml.StartElement) (*xml.StartElement, err
 	return rstart, nil
 }
 
+// Send the end element that closes the stream.
+func (stream *Stream) SendEnd(end *xml.EndElement) error {
+	buf := new(bytes.Buffer)
+	if err := writeXMLEndElement(buf, end); err != nil {
+		return err
+	}
+	if err := stream.send(buf.Bytes()); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Send a stanza. Used to write a complete, top-level element.
 func (stream *Stream) Send(v interface{}) error {
 	if stream.config.LogStanzas {
