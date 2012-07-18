@@ -73,9 +73,77 @@ type Presence struct {
 type Error struct {
 	XMLName xml.Name `xml:"error"`
 	Type string `xml:"type,attr"`
-	Text string `xml:"text"`
+	Payload string `xml:",innerxml"`
 }
 
 func (e Error) Error() string {
-	return fmt.Sprintf("%s: %s", e.Type, e.Text)
+	if text := e.Text(); text == "" {
+		return fmt.Sprintf("[%s] %s", e.Type, e.Condition().Local)
+	} else {
+		return fmt.Sprintf("[%s] %s, %s", e.Type, e.Condition().Local, text)
+	}
+	panic("unreachable")
 }
+
+type errorText struct {
+	XMLName xml.Name
+	Text string `xml:",chardata"`
+}
+
+// Create a new Error instance using the args as the payload.
+func NewError(errorType string, condition ErrorCondition, text string) *Error {
+
+	// Build payload.
+	buf := new(bytes.Buffer)
+	writeXMLStartElement(buf, &xml.StartElement{
+		Name: xml.Name{"", condition.Local},
+		Attr: []xml.Attr{
+			{xml.Name{"", "xmlns"}, condition.Space},
+		},
+	})
+	writeXMLEndElement(buf, &xml.EndElement{Name: xml.Name{"", condition.Local}})
+	enc := xml.NewEncoder(buf)
+	if text != "" {
+		enc.Encode(errorText{xml.Name{condition.Space, "text"}, text})
+	}
+
+	return &Error{Type: errorType, Payload: string(buf.Bytes())}
+}
+
+// Return the error text from the payload, or "" if not present.
+func (e Error) Text() string {
+	dec := xml.NewDecoder(bytes.NewBufferString(e.Payload))
+	next := startElementIter(dec)
+	for start := next(); start != nil; {
+		if start.Name.Local == "text" {
+			text := errorText{}
+			dec.DecodeElement(&text, start)
+			return text.Text
+		}
+		dec.Skip()
+		start = next()
+	}
+	return ""
+}
+
+// Return the error condition from the payload.
+func (e Error) Condition() ErrorCondition {
+	dec := xml.NewDecoder(bytes.NewBufferString(e.Payload))
+	next := startElementIter(dec)
+	for start := next(); start != nil; {
+		if start.Name.Local != "text" && (start.Name.Space == nsErrorStanzas || start.Name.Space == nsErrorStreams) {
+			return ErrorCondition(start.Name)
+		}
+		dec.Skip()
+		start = next()
+	}
+	return ErrorCondition{}
+}
+
+// Error condition.
+type ErrorCondition xml.Name
+
+// Stanza errors.
+var (
+	FeatureNotImplemented = ErrorCondition{nsErrorStanzas, "feature-not-implemented"}
+)
