@@ -9,12 +9,12 @@ import (
 // XMPP <iq/> stanza.
 type Iq struct {
 	XMLName xml.Name `xml:"iq"`
-	Id string `xml:"id,attr"`
-	Type string `xml:"type,attr"`
-	To string `xml:"to,attr,omitempty"`
-	From string `xml:"from,attr,omitempty"`
-	Payload string `xml:",innerxml"`
-	Error *Error `xml:"error"`
+	Id      string   `xml:"id,attr"`
+	Type    string   `xml:"type,attr"`
+	To      string   `xml:"to,attr,omitempty"`
+	From    string   `xml:"from,attr,omitempty"`
+	Payload string   `xml:",innerxml"`
+	Error   *Error   `xml:"error"`
 }
 
 // Encode the value to an XML string and set as the payload. See xml.Marshal
@@ -57,29 +57,29 @@ func (iq *Iq) Response(type_ string) *Iq {
 // XMPP <message/> stanza.
 type Message struct {
 	XMLName xml.Name `xml:"message"`
-	Id string `xml:"id,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-	To string `xml:"to,attr,omitempty"`
-	From string `xml:"from,attr,omitempty"`
-	Subject string `xml:"subject,omitempty"`
-	Body string `xml:"body,omitempty"`
+	Id      string   `xml:"id,attr,omitempty"`
+	Type    string   `xml:"type,attr,omitempty"`
+	To      string   `xml:"to,attr,omitempty"`
+	From    string   `xml:"from,attr,omitempty"`
+	Subject string   `xml:"subject,omitempty"`
+	Body    string   `xml:"body,omitempty"`
 }
 
 // XMPP <presence/> stanza.
 type Presence struct {
 	XMLName xml.Name `xml:"presence"`
-	Id string `xml:"id,attr,omitempty"`
-	Type string `xml:"type,attr,omitempty"`
-	To string `xml:"to,attr,omitempty"`
-	From string `xml:"from,attr,omitempty"`
+	Id      string   `xml:"id,attr,omitempty"`
+	Type    string   `xml:"type,attr,omitempty"`
+	To      string   `xml:"to,attr,omitempty"`
+	From    string   `xml:"from,attr,omitempty"`
 }
 
 // XMPP <error/>. May occur as a top-level stanza or embedded in another
 // stanza, e.g. an <iq type="error"/>.
 type Error struct {
 	XMLName xml.Name `xml:"error"`
-	Type string `xml:"type,attr"`
-	Payload string `xml:",innerxml"`
+	Type    string   `xml:"type,attr"`
+	Payload string   `xml:",innerxml"`
 }
 
 func (e Error) Error() string {
@@ -93,7 +93,7 @@ func (e Error) Error() string {
 
 type errorText struct {
 	XMLName xml.Name
-	Text string `xml:",chardata"`
+	Text    string `xml:",chardata"`
 }
 
 // Create a new Error instance using the args as the payload.

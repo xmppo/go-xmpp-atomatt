@@ -142,12 +142,12 @@ func authenticate(stream *Stream, mechanisms []string, user, password string) er
 
 type authHandler struct {
 	Mechanism string
-	Fn func(*Stream, string, string) error
+	Fn        func(*Stream, string, string) error
 }
 
 var authHandlers = []authHandler{
-		authHandler{"PLAIN", authenticatePlain},
-	}
+	{"PLAIN", authenticatePlain},
+}
 
 func authenticatePlain(stream *Stream, user, password string) error {
 	auth := saslAuth{Mechanism: "PLAIN", Text: saslEncodePlain(user, password)}
@@ -181,9 +181,9 @@ func authenticateResponse(stream *Stream) error {
 }
 
 type saslAuth struct {
-	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl auth"`
-	Mechanism string `xml:"mechanism,attr"`
-	Text string `xml:",chardata"`
+	XMLName   xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl auth"`
+	Mechanism string   `xml:"mechanism,attr"`
+	Text      string   `xml:",chardata"`
 }
 
 func bindResource(stream *Stream, jid JID) (JID, error) {
@@ -211,9 +211,9 @@ func bindResource(stream *Stream, jid JID) (JID, error) {
 }
 
 type bindIq struct {
-	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-bind bind"`
-	Resource string `xml:"resource,omitempty"`
-	JID string `xml:"jid,omitempty"`
+	XMLName  xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-bind bind"`
+	Resource string   `xml:"resource,omitempty"`
+	JID      string   `xml:"jid,omitempty"`
 }
 
 func establishSession(stream *Stream, domain string) error {
@@ -244,11 +244,11 @@ func stringSliceContains(l []string, m string) bool {
 }
 
 type features struct {
-	XMLName xml.Name `xml:"http://etherx.jabber.org/streams features"`
-	StartTLS *tlsStartTLS `xml:"starttls"`
-	Mechanisms *mechanisms `xml:"mechanisms"`
-	Bind *bind `xml:"bind"`
-	Session *session `xml:"session"`
+	XMLName    xml.Name     `xml:"http://etherx.jabber.org/streams features"`
+	StartTLS   *tlsStartTLS `xml:"starttls"`
+	Mechanisms *mechanisms  `xml:"mechanisms"`
+	Bind       *bind        `xml:"bind"`
+	Session    *session     `xml:"session"`
 }
 
 type session struct {
@@ -256,25 +256,25 @@ type session struct {
 }
 
 type bind struct {
-	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-bind bind"`
+	XMLName  xml.Name  `xml:"urn:ietf:params:xml:ns:xmpp-bind bind"`
 	Required *required `xml:"required"`
 }
 
 type mechanisms struct {
-	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl mechanisms"`
+	XMLName    xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl mechanisms"`
 	Mechanisms []string `xml:"mechanism"`
 }
 
 type tlsStartTLS struct {
-	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-tls starttls"`
+	XMLName  xml.Name  `xml:"urn:ietf:params:xml:ns:xmpp-tls starttls"`
 	Required *required `xml:"required"`
 }
 
-type required struct {}
+type required struct{}
 
 type saslFailure struct {
 	XMLName xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-sasl failure"`
-	Reason xml.Name `xml:",any"`
+	Reason  xml.Name `xml:",any"`
 }
 
 // BUG(matt): authentication incorrectly reports, "No supported SASL mechanism

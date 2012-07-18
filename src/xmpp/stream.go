@@ -19,10 +19,10 @@ type StreamConfig struct {
 }
 
 type Stream struct {
-	conn net.Conn
-	dec *xml.Decoder
-	config *StreamConfig
-	stanzaBuf string
+	conn              net.Conn
+	dec               *xml.Decoder
+	config            *StreamConfig
+	stanzaBuf         string
 	incomingNamespace nsMap
 }
 

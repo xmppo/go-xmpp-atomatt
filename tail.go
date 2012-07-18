@@ -11,7 +11,7 @@ var (
 	skipverify = false
 	jid        = ""
 	pass       = ""
-	debug	 = false
+	debug      = false
 )
 
 func init() {

@@ -15,4 +15,3 @@ func UUID4() string {
 	uuid[8] = (uuid[8] &^ 0x40) | 0x80
 	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:])
 }
-

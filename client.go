@@ -18,7 +18,7 @@ func main() {
 
 	// Create stream and configure it as a client connection.
 	jid := must(xmpp.ParseJID(*jid)).(xmpp.JID)
-	stream := must(xmpp.NewStream(jid.Domain + ":5222", &xmpp.StreamConfig{LogStanzas: true})).(*xmpp.Stream)
+	stream := must(xmpp.NewStream(jid.Domain+":5222", &xmpp.StreamConfig{LogStanzas: true})).(*xmpp.Stream)
 	client := must(xmpp.NewClientXMPP(stream, jid, *password, &xmpp.ClientConfig{InsecureSkipVerify: true})).(*xmpp.XMPP)
 
 	log.Printf("Connection established for %s\n", client.JID)

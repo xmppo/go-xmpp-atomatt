@@ -12,7 +12,7 @@ type XMPP struct {
 
 	// JID associated with the stream. Note: this may be negotiated with the
 	// server during setup and so must be used for all messages.
-	JID JID
+	JID    JID
 	stream *Stream
 
 	// Channel of incoming messages. Values will be one of Iq, Message,
@@ -26,17 +26,17 @@ type XMPP struct {
 	Out chan interface{}
 
 	// Incoming stanza filters.
-	filterLock sync.Mutex
+	filterLock   sync.Mutex
 	nextFilterId FilterId
-	filters []filter
+	filters      []filter
 }
 
 func newXMPP(jid JID, stream *Stream) *XMPP {
 	x := &XMPP{
-		JID: jid,
+		JID:    jid,
 		stream: stream,
-		In: make(chan interface{}),
-		Out: make(chan interface{}),
+		In:     make(chan interface{}),
+		Out:    make(chan interface{}),
 	}
 	go x.sender()
 	go x.receiver()
@@ -84,7 +84,7 @@ func (fid FilterId) Error() string {
 
 type filter struct {
 	id FilterId
-	m Matcher
+	m  Matcher
 	ch chan interface{}
 }
 
@@ -100,7 +100,7 @@ func (x *XMPP) AddFilter(m Matcher) (FilterId, chan interface{}) {
 	// Allocate chan and id.
 	ch := make(chan interface{})
 	id := x.nextFilterId
-	x.nextFilterId ++
+	x.nextFilterId++
 
 	// Insert at head of filters list.
 	filters := make([]filter, len(x.filters)+1)
