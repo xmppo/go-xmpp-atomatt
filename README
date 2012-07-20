@@ -1,0 +1,3 @@
+Go package for implementing XMPP clients and components.
+
+See src/xmpp/doc.go for overview.
