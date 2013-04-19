@@ -16,10 +16,7 @@ const (
 func HomeServerAddrs(jid JID) (addr []string, err error) {
 
 	// DNS lookup.
-	_, addrs, err := net.LookupSRV("xmpp-client", "tcp", jid.Domain)
-	if err != nil {
-		return
-	}
+	_, addrs, _ := net.LookupSRV("xmpp-client", "tcp", jid.Domain)
 
 	// If there's nothing in DNS then assume the JID's domain and the standard
 	// port will work.
