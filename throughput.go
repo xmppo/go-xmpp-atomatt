@@ -80,15 +80,15 @@ func consumer(args []string) {
 	count := 0
 	throughputCount := 0
 
-	go  func() {
+	go func() {
 		throughput := time.Tick(time.Second)
 		total := time.Tick(time.Second * 5)
 		for {
 			select {
-			case <- throughput:
-				log.Printf("throughput: %d msgs/s\n", count - throughputCount)
+			case <-throughput:
+				log.Printf("throughput: %d msgs/s\n", count-throughputCount)
 				throughputCount = count
-			case <- total:
+			case <-total:
 				log.Printf("total: %d\n", count)
 			}
 		}
@@ -96,7 +96,7 @@ func consumer(args []string) {
 
 	for stanza := range x.In {
 		if _, ok := stanza.(*xmpp.Message); ok {
-			count ++
+			count++
 		}
 	}
 }
