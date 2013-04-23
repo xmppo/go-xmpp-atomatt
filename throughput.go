@@ -51,7 +51,12 @@ func producer(args []string) {
 	}()
 
 	for stanza := range x.In {
-		log.Println(stanza)
+		switch v := stanza.(type) {
+		case error:
+			log.Fatal(v)
+		default:
+			log.Println(stanza)
+		}
 	}
 }
 
@@ -95,8 +100,11 @@ func consumer(args []string) {
 	}()
 
 	for stanza := range x.In {
-		if _, ok := stanza.(*xmpp.Message); ok {
+		switch v := stanza.(type) {
+		case *xmpp.Message:
 			count++
+		case error:
+			log.Fatal(v)
 		}
 	}
 }
