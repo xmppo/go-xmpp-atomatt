@@ -39,7 +39,7 @@ type DiscoFeature struct {
 // Iq get/result payload for "items" requests.
 type DiscoItems struct {
 	XMLName xml.Name    `xml:"http://jabber.org/protocol/disco#items query"`
-	Node     string     `xml:"node,attr"`
+	Node    string      `xml:"node,attr"`
 	Item    []DiscoItem `xml:"item"`
 }
 

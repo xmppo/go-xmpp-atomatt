@@ -6,14 +6,12 @@ import (
 	"fmt"
 )
 
-
 const (
 	IqTypeGet    = "get"
 	IqTypeSet    = "set"
 	IqTypeResult = "result"
 	IqTypeError  = "error"
 )
-
 
 // XMPP <iq/> stanza.
 type Iq struct {
@@ -81,10 +79,10 @@ type Presence struct {
 	Type    string   `xml:"type,attr,omitempty"`
 	To      string   `xml:"to,attr,omitempty"`
 	From    string   `xml:"from,attr,omitempty"`
-	Show    string   `xml:"show"`		// away, chat, dnd, xa
-	Status  string   `xml:"status"` // sb []clientText
-	Photo   string   `xml:"photo,omitempty"`  // Avatar
-	Nick    string   `xml:"nick,omitempty"`   // Nickname
+	Show    string   `xml:"show"`            // away, chat, dnd, xa
+	Status  string   `xml:"status"`          // sb []clientText
+	Photo   string   `xml:"photo,omitempty"` // Avatar
+	Nick    string   `xml:"nick,omitempty"`  // Nickname
 }
 
 // XMPP <error/>. May occur as a top-level stanza or embedded in another
