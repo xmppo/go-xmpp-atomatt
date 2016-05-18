@@ -57,7 +57,7 @@ func (disco *Disco) Info(to, from string) (*DiscoInfo, error) {
 		from = disco.XMPP.JID.Full()
 	}
 
-	req := &Iq{Id: UUID4(), Type: IqTypeGet, To: to, From: from}
+	req := &Iq{Id: UUID4(), Type: IQTypeGet, To: to, From: from}
 	req.PayloadEncode(&DiscoInfo{})
 
 	resp, err := disco.XMPP.SendRecv(req)
@@ -80,7 +80,7 @@ func (disco *Disco) Items(to, from, node string) (*DiscoItems, error) {
 		from = disco.XMPP.JID.Full()
 	}
 
-	req := &Iq{Id: UUID4(), Type: IqTypeGet, To: to, From: from}
+	req := &Iq{Id: UUID4(), Type: IQTypeGet, To: to, From: from}
 	req.PayloadEncode(&DiscoItems{Node: node})
 
 	resp, err := disco.XMPP.SendRecv(req)
@@ -96,7 +96,7 @@ func (disco *Disco) Items(to, from, node string) (*DiscoItems, error) {
 	return items, err
 }
 
-var discoNamespacePrefix = strings.Split(NsDiscoInfo, "#")[0]
+var discoNamespacePrefix = strings.Split(NSDiscoInfo, "#")[0]
 
 // Matcher instance to match <iq/> stanzas with a disco payload.
 var DiscoPayloadMatcher = MatcherFunc(
