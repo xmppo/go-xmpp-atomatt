@@ -36,7 +36,7 @@ type AdHocCommand struct {
 	XMLName   xml.Name   `xml:"http://jabber.org/protocol/commands command"`
 	Node      string     `xml:"node,attr"`
 	Action    string     `xml:"action,attr"`
-	SessionId string     `xml:"sessionid,attr"`
+	SessionID string     `xml:"sessionid,attr"`
 	Status    string     `xml:"status,attr"`
 	XForm     AdHocXForm `xml:"x"`
 	Note      AdHocNote  `xml:"note,omitempty"`

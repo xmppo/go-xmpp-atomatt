@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	NsVCardTemp = "vcard-temp"
+	NSVCardTemp = "vcard-temp"
 )
 
 // XEP-0054 vCard

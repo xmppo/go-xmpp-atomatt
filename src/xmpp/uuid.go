@@ -5,6 +5,10 @@ import (
 	"fmt"
 )
 
+const (
+	dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+)
+
 // Generate a UUID4.
 func UUID4() string {
 	uuid := make([]byte, 16)
@@ -16,13 +20,11 @@ func UUID4() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:])
 }
 
-func SessionId() string {
-	var strSize = 15
-	var dictionary string
-	dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
-	var bytes = make([]byte, strSize)
-	rand.Read(bytes)
+func SessionID() string {
+	var bytes = make([]byte, 15)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err)
+	}
 	for k, v := range bytes {
 		bytes[k] = dictionary[v%byte(len(dictionary))]
 	}

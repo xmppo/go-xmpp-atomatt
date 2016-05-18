@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	NsJabberClient = "jabber:iq:version"
+	NSJabberClient = "jabber:iq:version"
 )
 
 // XEP-0092 Software Version

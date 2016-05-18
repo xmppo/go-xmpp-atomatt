@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	NsDiscoInfo  = "http://jabber.org/protocol/disco#info"
-	NsDiscoItems = "http://jabber.org/protocol/disco#items"
+	NSDiscoInfo  = "http://jabber.org/protocol/disco#info"
+	NSDiscoItems = "http://jabber.org/protocol/disco#items"
 )
 
 // Service Discovery (XEP-0030) protocol. "Wraps" XMPP instance to provide a

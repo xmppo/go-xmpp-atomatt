@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	IqTypeGet    = "get"
-	IqTypeSet    = "set"
-	IqTypeResult = "result"
-	IqTypeError  = "error"
+	IQTypeGet    = "get"
+	IQTypeSet    = "set"
+	IQTypeResult = "result"
+	IQTypeError  = "error"
 )
 
 // XMPP <iq/> stanza.
