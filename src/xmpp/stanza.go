@@ -70,6 +70,9 @@ type Message struct {
 	From    string   `xml:"from,attr,omitempty"`
 	Subject string   `xml:"subject,omitempty"`
 	Body    string   `xml:"body,omitempty"`
+	Thread  string   `xml:"thread,omitempty"`
+	Error   *Error   `xml:"error"`
+	Confir  *Confirm `xml:"confirm"`
 }
 
 // XMPP <presence/> stanza.
