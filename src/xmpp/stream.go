@@ -163,6 +163,13 @@ func nextStartElement(dec *xml.Decoder) (*xml.StartElement, error) {
 		}
 		switch e := t.(type) {
 		case xml.StartElement:
+			for i, _ := range e.Attr {
+				// Replace URL namespace to xml in order to avoid error on Unmarshal
+				// It's quite ugly, but working for now
+				if e.Attr[i].Name.Space == "http://www.w3.org/XML/1998/namespace" {
+					e.Attr[i].Name.Space = "xml"
+				}
+			}
 			return &e, nil
 		case xml.EndElement:
 			log.Printf("EOF due to %s\n", e.Name)
