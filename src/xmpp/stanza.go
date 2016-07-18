@@ -11,6 +11,10 @@ const (
 	IQTypeSet    = "set"
 	IQTypeResult = "result"
 	IQTypeError  = "error"
+
+	MessageTypeNormal = "normal"
+	MessageTypeChat   = "chat"
+	MessageTypeError  = "error"
 )
 
 // XMPP <iq/> stanza.
@@ -166,4 +170,6 @@ type ErrorCondition xml.Name
 // Stanza errors.
 var (
 	FeatureNotImplemented = ErrorCondition{nsErrorStanzas, "feature-not-implemented"}
+	RemoteServerNotFound  = ErrorCondition{nsErrorStanzas, "remote-server-not-found"}
+	ServiceUnavailable    = ErrorCondition{nsErrorStanzas, "service-unavailable"}
 )
