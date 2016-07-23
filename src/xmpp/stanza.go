@@ -172,4 +172,5 @@ var (
 	FeatureNotImplemented = ErrorCondition{nsErrorStanzas, "feature-not-implemented"}
 	RemoteServerNotFound  = ErrorCondition{nsErrorStanzas, "remote-server-not-found"}
 	ServiceUnavailable    = ErrorCondition{nsErrorStanzas, "service-unavailable"}
+	NotAuthorized         = ErrorCondition{nsErrorStanzas, "not-authorized"}
 )
