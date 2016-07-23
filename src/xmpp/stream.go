@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"strings"
 )
 
 // Stream configuration.
@@ -24,6 +25,7 @@ type Stream struct {
 	config            *StreamConfig
 	stanzaBuf         string
 	incomingNamespace nsMap
+	connDomain        string
 }
 
 // Create a XML stream connection. A Steam is used by an XMPP instance to
@@ -41,7 +43,7 @@ func NewStream(addr string, config *StreamConfig) (*Stream, error) {
 		return nil, err
 	}
 
-	stream := &Stream{conn: conn, dec: xml.NewDecoder(conn), config: config}
+	stream := &Stream{conn: conn, dec: xml.NewDecoder(conn), config: config, connDomain: strings.SplitN(addr, ":", 2)[0]}
 
 	if err := stream.send([]byte("<?xml version='1.0' encoding='utf-8'?>")); err != nil {
 		return nil, err
