@@ -30,6 +30,7 @@ const (
 	TypeAdHocFieldListSingle = "list-single"
 	TypeAdHocFieldTextSingle = "text-single"
 	TypeAdHocFieldJidSingle  = "jid-single"
+	TypeAdHocFieldTextPrivate = "text-private"
 )
 
 type AdHocCommand struct {
