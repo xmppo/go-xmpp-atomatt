@@ -11,7 +11,7 @@ const (
 	ActionAdHocNext    = "next"
 	ActionAdHocCancel  = "cancel"
 
-	StatusAdHocExecute   = "execute"
+	StatusAdHocExecute   = "executing"
 	StatusAdHocCompleted = "completed"
 	StatusAdHocCanceled  = "canceled"
 
@@ -30,6 +30,7 @@ const (
 	TypeAdHocFieldListSingle = "list-single"
 	TypeAdHocFieldTextSingle = "text-single"
 	TypeAdHocFieldJidSingle  = "jid-single"
+	TypeAdHocFieldTextPrivate = "text-private"
 )
 
 type AdHocCommand struct {
