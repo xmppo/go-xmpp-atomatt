@@ -115,7 +115,7 @@ func startTLS(stream *Stream, config *ClientConfig) error {
 		return err
 	}
 
-	tlsConfig := tls.Config{InsecureSkipVerify: config.InsecureSkipVerify, ServerName: stream.connDomain}
+	tlsConfig := tls.Config{InsecureSkipVerify: config.InsecureSkipVerify, ServerName: stream.config.ConnectionDomain}
 	return stream.UpgradeTLS(&tlsConfig)
 }
 

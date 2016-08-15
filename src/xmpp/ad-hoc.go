@@ -26,10 +26,10 @@ const (
 	TypeAdHocNoteWarning = "warn"
 	TypeAdHocNoteError   = "error"
 
-	TypeAdHocFieldListMulti  = "list-multi"
-	TypeAdHocFieldListSingle = "list-single"
-	TypeAdHocFieldTextSingle = "text-single"
-	TypeAdHocFieldJidSingle  = "jid-single"
+	TypeAdHocFieldListMulti   = "list-multi"
+	TypeAdHocFieldListSingle  = "list-single"
+	TypeAdHocFieldTextSingle  = "text-single"
+	TypeAdHocFieldJidSingle   = "jid-single"
 	TypeAdHocFieldTextPrivate = "text-private"
 )
 

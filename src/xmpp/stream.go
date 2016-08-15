@@ -17,6 +17,9 @@ type StreamConfig struct {
 	// are either sent to the server or delivered to the application. It also
 	// causes incoming stanzas to be XML-parsed a second time.
 	LogStanzas bool
+
+	// The dommain connection for certificat validation.
+	ConnectionDomain string
 }
 
 type Stream struct {
@@ -25,7 +28,6 @@ type Stream struct {
 	config            *StreamConfig
 	stanzaBuf         string
 	incomingNamespace nsMap
-	connDomain        string
 }
 
 // Create a XML stream connection. A Steam is used by an XMPP instance to
@@ -43,7 +45,10 @@ func NewStream(addr string, config *StreamConfig) (*Stream, error) {
 		return nil, err
 	}
 
-	stream := &Stream{conn: conn, dec: xml.NewDecoder(conn), config: config, connDomain: strings.SplitN(addr, ":", 2)[0]}
+	stream := &Stream{conn: conn, dec: xml.NewDecoder(conn), config: config}
+	if config.ConnectionDomain == "" {
+		config.ConnectionDomain = strings.SplitN(addr, ":", 2)[0]
+	}
 
 	if err := stream.send([]byte("<?xml version='1.0' encoding='utf-8'?>")); err != nil {
 		return nil, err
