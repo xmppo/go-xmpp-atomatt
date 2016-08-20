@@ -169,6 +169,7 @@ func (x *XMPP) sender() {
 
 	// Close the stream. Note: relies on common element name for all types of
 	// XMPP connection.
+	log.Println("Close XMPP stream")
 	x.stream.SendEnd(&xml.EndElement{xml.Name{"stream", "stream"}})
 }
 
@@ -214,6 +215,8 @@ func (x *XMPP) receiver() {
 			x.In <- v
 		}
 	}
+
+	log.Println("Close XMPP receiver")
 }
 
 // BUG(matt): Filter channels are not closed when the stream is closed.
