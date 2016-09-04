@@ -76,7 +76,14 @@ type Message struct {
 	Body    string   `xml:"body,omitempty"`
 	Thread  string   `xml:"thread,omitempty"`
 	Error   *Error   `xml:"error"`
-	Confir  *Confirm `xml:"confirm"`
+
+	Confir *Confirm `xml:"confirm"` // XEP-0070
+
+	Active    *Active    `xml:"active"`    // XEP-0085
+	Composing *Composing `xml:"composing"` // XEP-0085
+	Paused    *Paused    `xml:"paused"`    // XEP-0085
+	Inactive  *Inactive  `xml:"inactive"`  // XEP-0085
+	Gone      *Gone      `xml:"gone"`      // XEP-0085
 }
 
 // XMPP <presence/> stanza.
