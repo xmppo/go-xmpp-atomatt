@@ -103,6 +103,7 @@ type Presence struct {
 // stanza, e.g. an <iq type="error"/>.
 type Error struct {
 	XMLName xml.Name `xml:"error"`
+	Code    string   `xml:"code,attr,omitempty"`
 	Type    string   `xml:"type,attr"`
 	Payload string   `xml:",innerxml"`
 }
@@ -141,6 +142,12 @@ func NewError(errorType string, condition ErrorCondition, text string) *Error {
 	return &Error{Type: errorType, Payload: string(buf.Bytes())}
 }
 
+func NewErrorWithCode(code, errorType string, condition ErrorCondition, text string) *Error {
+	err := NewError(errorType, condition, text)
+	err.Code = code
+	return err
+}
+
 // Return the error text from the payload, or "" if not present.
 func (e Error) Text() string {
 	dec := xml.NewDecoder(bytes.NewBufferString(e.Payload))
@@ -176,8 +183,10 @@ type ErrorCondition xml.Name
 
 // Stanza errors.
 var (
-	FeatureNotImplemented = ErrorCondition{nsErrorStanzas, "feature-not-implemented"}
-	RemoteServerNotFound  = ErrorCondition{nsErrorStanzas, "remote-server-not-found"}
-	ServiceUnavailable    = ErrorCondition{nsErrorStanzas, "service-unavailable"}
-	NotAuthorized         = ErrorCondition{nsErrorStanzas, "not-authorized"}
+	ErrorFeatureNotImplemented = ErrorCondition{nsErrorStanzas, "feature-not-implemented"}
+	ErrorRemoteServerNotFound  = ErrorCondition{nsErrorStanzas, "remote-server-not-found"}
+	ErrorServiceUnavailable    = ErrorCondition{nsErrorStanzas, "service-unavailable"}
+	ErrorNotAuthorized         = ErrorCondition{nsErrorStanzas, "not-authorized"}
+	ErrorConflict              = ErrorCondition{nsErrorStanzas, "conflict"}
+	ErrorNotAcceptable         = ErrorCondition{nsErrorStanzas, "not-acceptable"}
 )
