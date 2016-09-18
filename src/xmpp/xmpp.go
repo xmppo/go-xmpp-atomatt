@@ -175,7 +175,10 @@ func (x *XMPP) sender() {
 
 func (x *XMPP) receiver() {
 
-	defer close(x.In)
+	defer func() {
+		log.Println("Close XMPP receiver")
+		close(x.In)
+	}()
 
 	for {
 		start, err := x.stream.Next()
@@ -215,8 +218,7 @@ func (x *XMPP) receiver() {
 			x.In <- v
 		}
 	}
-
-	log.Println("Close XMPP receiver")
 }
 
 // BUG(matt): Filter channels are not closed when the stream is closed.
+
