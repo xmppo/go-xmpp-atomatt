@@ -189,4 +189,5 @@ var (
 	ErrorNotAuthorized         = ErrorCondition{nsErrorStanzas, "not-authorized"}
 	ErrorConflict              = ErrorCondition{nsErrorStanzas, "conflict"}
 	ErrorNotAcceptable         = ErrorCondition{nsErrorStanzas, "not-acceptable"}
+	ErrorForbidden             = ErrorCondition{nsErrorStanzas, "forbidden"}
 )
