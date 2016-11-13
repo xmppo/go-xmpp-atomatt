@@ -67,15 +67,16 @@ func (iq *Iq) Response(type_ string) *Iq {
 
 // XMPP <message/> stanza.
 type Message struct {
-	XMLName xml.Name `xml:"message"`
-	Id      string   `xml:"id,attr,omitempty"`
-	Type    string   `xml:"type,attr,omitempty"`
-	To      string   `xml:"to,attr,omitempty"`
-	From    string   `xml:"from,attr,omitempty"`
-	Subject string   `xml:"subject,omitempty"`
-	Body    string   `xml:"body,omitempty"`
-	Thread  string   `xml:"thread,omitempty"`
-	Error   *Error   `xml:"error"`
+	XMLName xml.Name      `xml:"message"`
+	Id      string        `xml:"id,attr,omitempty"`
+	Type    string        `xml:"type,attr,omitempty"`
+	To      string        `xml:"to,attr,omitempty"`
+	From    string        `xml:"from,attr,omitempty"`
+	Subject string        `xml:"subject,omitempty"`
+	Body    []MessageBody `xml:"body,omitempty"`
+	Thread  string        `xml:"thread,omitempty"`
+	Error   *Error        `xml:"error"`
+	Lang    string        `xml:"xml:lang,attr,omitempty"`
 
 	Confir *Confirm `xml:"confirm"` // XEP-0070
 
@@ -84,6 +85,11 @@ type Message struct {
 	Paused    *Paused    `xml:"paused"`    // XEP-0085
 	Inactive  *Inactive  `xml:"inactive"`  // XEP-0085
 	Gone      *Gone      `xml:"gone"`      // XEP-0085
+}
+
+type MessageBody struct {
+	Lang  string `xml:"xml:lang,attr,omitempty"`
+	Value string `xml:",innerxml"`
 }
 
 // XMPP <presence/> stanza.
