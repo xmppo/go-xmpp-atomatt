@@ -89,7 +89,7 @@ type Message struct {
 
 type MessageBody struct {
 	Lang  string `xml:"xml:lang,attr,omitempty"`
-	Value string `xml:",innerxml"`
+	Value string `xml:",chardata"`
 }
 
 // XMPP <presence/> stanza.
