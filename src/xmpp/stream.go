@@ -18,7 +18,7 @@ type StreamConfig struct {
 	// causes incoming stanzas to be XML-parsed a second time.
 	LogStanzas bool
 
-	// The dommain connection for certificat validation.
+	// The dommain connection for certificate validation.
 	ConnectionDomain string
 }
 
