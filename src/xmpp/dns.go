@@ -3,6 +3,7 @@ package xmpp
 import (
 	"fmt"
 	"net"
+	"strings"
 )
 
 const (
@@ -27,18 +28,8 @@ func HomeServerAddrs(jid JID) (addr []string, err error) {
 
 	// Build list of "host:port" strings.
 	for _, a := range addrs {
-		target := parseTargetDomainName(a.Target)
+		target := strings.TrimRight(a.Target, ".")
 		addr = append(addr, fmt.Sprintf("%s:%d", target, a.Port))
-	}
-	return
-}
-
-// Remove the last dot in the domain name if exist
-func parseTargetDomainName(domainName string) (ret string) {
-	if domainName[len(domainName)-1] == '.' {
-		ret = parseTargetDomainName(domainName[:len(domainName)-1])
-	} else {
-		ret = domainName
 	}
 	return
 }
