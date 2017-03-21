@@ -7,9 +7,9 @@ import (
 const (
 	NSRemoteRosterManager = "urn:xmpp:tmp:roster-management:0"
 
-  RemoteRosterManagerTypeRequest  = "request"
-  RemoteRosterManagerTypeAllowed  = "allowed"
-  RemoteRosterManagerTypeRejected = "rejected"
+	RemoteRosterManagerTypeRequest  = "request"
+	RemoteRosterManagerTypeAllowed  = "allowed"
+	RemoteRosterManagerTypeRejected = "rejected"
 )
 
 // XEP-0321: Remote Roster Manager
