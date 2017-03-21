@@ -78,7 +78,7 @@ type Message struct {
 	Error   *Error        `xml:"error"`
 	Lang    string        `xml:"xml:lang,attr,omitempty"`
 
-	Confir *Confirm `xml:"confirm"` // XEP-0070
+	Confirm *Confirm `xml:"confirm"` // XEP-0070
 
 	Active    *Active    `xml:"active"`    // XEP-0085
 	Composing *Composing `xml:"composing"` // XEP-0085
