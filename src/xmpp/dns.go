@@ -3,6 +3,7 @@ package xmpp
 import (
 	"fmt"
 	"net"
+	"strings"
 )
 
 const (
@@ -27,7 +28,8 @@ func HomeServerAddrs(jid JID) (addr []string, err error) {
 
 	// Build list of "host:port" strings.
 	for _, a := range addrs {
-		addr = append(addr, fmt.Sprintf("%s:%d", a.Target, a.Port))
+		target := strings.TrimRight(a.Target, ".")
+		addr = append(addr, fmt.Sprintf("%s:%d", target, a.Port))
 	}
 	return
 }

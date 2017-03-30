@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"strings"
 )
 
 // Stream configuration.
@@ -16,6 +17,9 @@ type StreamConfig struct {
 	// are either sent to the server or delivered to the application. It also
 	// causes incoming stanzas to be XML-parsed a second time.
 	LogStanzas bool
+
+	// The dommain connection for certificate validation.
+	ConnectionDomain string
 }
 
 type Stream struct {
@@ -42,6 +46,9 @@ func NewStream(addr string, config *StreamConfig) (*Stream, error) {
 	}
 
 	stream := &Stream{conn: conn, dec: xml.NewDecoder(conn), config: config}
+	if config.ConnectionDomain == "" {
+		config.ConnectionDomain = strings.SplitN(addr, ":", 2)[0]
+	}
 
 	if err := stream.send([]byte("<?xml version='1.0' encoding='utf-8'?>")); err != nil {
 		return nil, err
@@ -163,6 +170,13 @@ func nextStartElement(dec *xml.Decoder) (*xml.StartElement, error) {
 		}
 		switch e := t.(type) {
 		case xml.StartElement:
+			for i, _ := range e.Attr {
+				// Replace URL namespace to xml in order to avoid error on Unmarshal
+				// It's quite ugly, but working for now
+				if e.Attr[i].Name.Space == "http://www.w3.org/XML/1998/namespace" {
+					e.Attr[i].Name.Space = "xml"
+				}
+			}
 			return &e, nil
 		case xml.EndElement:
 			log.Printf("EOF due to %s\n", e.Name)

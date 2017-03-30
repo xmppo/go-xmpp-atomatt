@@ -6,6 +6,17 @@ import (
 	"fmt"
 )
 
+const (
+	IQTypeGet    = "get"
+	IQTypeSet    = "set"
+	IQTypeResult = "result"
+	IQTypeError  = "error"
+
+	MessageTypeNormal = "normal"
+	MessageTypeChat   = "chat"
+	MessageTypeError  = "error"
+)
+
 // XMPP <iq/> stanza.
 type Iq struct {
 	XMLName xml.Name `xml:"iq"`
@@ -56,13 +67,29 @@ func (iq *Iq) Response(type_ string) *Iq {
 
 // XMPP <message/> stanza.
 type Message struct {
-	XMLName xml.Name `xml:"message"`
-	Id      string   `xml:"id,attr,omitempty"`
-	Type    string   `xml:"type,attr,omitempty"`
-	To      string   `xml:"to,attr,omitempty"`
-	From    string   `xml:"from,attr,omitempty"`
-	Subject string   `xml:"subject,omitempty"`
-	Body    string   `xml:"body,omitempty"`
+	XMLName xml.Name      `xml:"message"`
+	Id      string        `xml:"id,attr,omitempty"`
+	Type    string        `xml:"type,attr,omitempty"`
+	To      string        `xml:"to,attr,omitempty"`
+	From    string        `xml:"from,attr,omitempty"`
+	Subject string        `xml:"subject,omitempty"`
+	Body    []MessageBody `xml:"body,omitempty"`
+	Thread  string        `xml:"thread,omitempty"`
+	Error   *Error        `xml:"error"`
+	Lang    string        `xml:"xml:lang,attr,omitempty"`
+
+	Confirm *Confirm `xml:"confirm"` // XEP-0070
+
+	Active    *Active    `xml:"active"`    // XEP-0085
+	Composing *Composing `xml:"composing"` // XEP-0085
+	Paused    *Paused    `xml:"paused"`    // XEP-0085
+	Inactive  *Inactive  `xml:"inactive"`  // XEP-0085
+	Gone      *Gone      `xml:"gone"`      // XEP-0085
+}
+
+type MessageBody struct {
+	Lang  string `xml:"xml:lang,attr,omitempty"`
+	Value string `xml:",chardata"`
 }
 
 // XMPP <presence/> stanza.
@@ -72,12 +99,17 @@ type Presence struct {
 	Type    string   `xml:"type,attr,omitempty"`
 	To      string   `xml:"to,attr,omitempty"`
 	From    string   `xml:"from,attr,omitempty"`
+	Show    string   `xml:"show"`            // away, chat, dnd, xa
+	Status  string   `xml:"status"`          // sb []clientText
+	Photo   string   `xml:"photo,omitempty"` // Avatar
+	Nick    string   `xml:"nick,omitempty"`  // Nickname
 }
 
 // XMPP <error/>. May occur as a top-level stanza or embedded in another
 // stanza, e.g. an <iq type="error"/>.
 type Error struct {
 	XMLName xml.Name `xml:"error"`
+	Code    string   `xml:"code,attr,omitempty"`
 	Type    string   `xml:"type,attr"`
 	Payload string   `xml:",innerxml"`
 }
@@ -116,6 +148,12 @@ func NewError(errorType string, condition ErrorCondition, text string) *Error {
 	return &Error{Type: errorType, Payload: string(buf.Bytes())}
 }
 
+func NewErrorWithCode(code, errorType string, condition ErrorCondition, text string) *Error {
+	err := NewError(errorType, condition, text)
+	err.Code = code
+	return err
+}
+
 // Return the error text from the payload, or "" if not present.
 func (e Error) Text() string {
 	dec := xml.NewDecoder(bytes.NewBufferString(e.Payload))
@@ -151,5 +189,11 @@ type ErrorCondition xml.Name
 
 // Stanza errors.
 var (
-	FeatureNotImplemented = ErrorCondition{nsErrorStanzas, "feature-not-implemented"}
+	ErrorFeatureNotImplemented = ErrorCondition{nsErrorStanzas, "feature-not-implemented"}
+	ErrorRemoteServerNotFound  = ErrorCondition{nsErrorStanzas, "remote-server-not-found"}
+	ErrorServiceUnavailable    = ErrorCondition{nsErrorStanzas, "service-unavailable"}
+	ErrorNotAuthorized         = ErrorCondition{nsErrorStanzas, "not-authorized"}
+	ErrorConflict              = ErrorCondition{nsErrorStanzas, "conflict"}
+	ErrorNotAcceptable         = ErrorCondition{nsErrorStanzas, "not-acceptable"}
+	ErrorForbidden             = ErrorCondition{nsErrorStanzas, "forbidden"}
 )

@@ -169,12 +169,17 @@ func (x *XMPP) sender() {
 
 	// Close the stream. Note: relies on common element name for all types of
 	// XMPP connection.
-	x.stream.SendEnd(&xml.EndElement{xml.Name{"stream", "stream"}})
+	log.Println("Close XMPP stream")
+	x.Close()
 }
 
 func (x *XMPP) receiver() {
 
-	defer close(x.In)
+	defer func() {
+		log.Println("Close XMPP receiver")
+		x.Close()
+		close(x.In)
+	}()
 
 	for {
 		start, err := x.stream.Next()
@@ -194,12 +199,12 @@ func (x *XMPP) receiver() {
 		case "presence":
 			v = &Presence{}
 		default:
-			log.Fatal("Unexected element: %T %v", start, start)
+			log.Println("Error. Unexected element: %T %v", start, start)
 		}
 
 		err = x.stream.Decode(v, start)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("Error. Failed to decode element. ", err)
 		}
 
 		filtered := false
@@ -214,6 +219,11 @@ func (x *XMPP) receiver() {
 			x.In <- v
 		}
 	}
+}
+
+func (x *XMPP) Close() {
+	log.Println("Close XMPP")
+	x.stream.SendEnd(&xml.EndElement{xml.Name{"stream", "stream"}})
 }
 
 // BUG(matt): Filter channels are not closed when the stream is closed.

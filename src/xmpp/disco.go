@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	nsDiscoInfo  = "http://jabber.org/protocol/disco#info"
-	nsDiscoItems = "http://jabber.org/protocol/disco#items"
+	NSDiscoInfo  = "http://jabber.org/protocol/disco#info"
+	NSDiscoItems = "http://jabber.org/protocol/disco#items"
 )
 
 // Service Discovery (XEP-0030) protocol. "Wraps" XMPP instance to provide a
@@ -19,6 +19,7 @@ type Disco struct {
 // Iq get/result payload for "info" requests.
 type DiscoInfo struct {
 	XMLName  xml.Name        `xml:"http://jabber.org/protocol/disco#info query"`
+	Node     string          `xml:"node,attr"`
 	Identity []DiscoIdentity `xml:"identity"`
 	Feature  []DiscoFeature  `xml:"feature"`
 }
@@ -38,6 +39,7 @@ type DiscoFeature struct {
 // Iq get/result payload for "items" requests.
 type DiscoItems struct {
 	XMLName xml.Name    `xml:"http://jabber.org/protocol/disco#items query"`
+	Node    string      `xml:"node,attr"`
 	Item    []DiscoItem `xml:"item"`
 }
 
@@ -49,13 +51,13 @@ type DiscoItem struct {
 }
 
 // Request information about the service identified by 'to'.
-func (disco *Disco) Info(to string, from string) (*DiscoInfo, error) {
+func (disco *Disco) Info(to, from string) (*DiscoInfo, error) {
 
 	if from == "" {
 		from = disco.XMPP.JID.Full()
 	}
 
-	req := &Iq{Id: UUID4(), Type: "get", To: to, From: from}
+	req := &Iq{Id: UUID4(), Type: IQTypeGet, To: to, From: from}
 	req.PayloadEncode(&DiscoInfo{})
 
 	resp, err := disco.XMPP.SendRecv(req)
@@ -72,14 +74,14 @@ func (disco *Disco) Info(to string, from string) (*DiscoInfo, error) {
 }
 
 // Request items in the service identified by 'to'.
-func (disco *Disco) Items(to string, from string) (*DiscoItems, error) {
+func (disco *Disco) Items(to, from, node string) (*DiscoItems, error) {
 
 	if from == "" {
 		from = disco.XMPP.JID.Full()
 	}
 
-	req := &Iq{Id: UUID4(), Type: "get", To: to, From: from}
-	req.PayloadEncode(&DiscoItems{})
+	req := &Iq{Id: UUID4(), Type: IQTypeGet, To: to, From: from}
+	req.PayloadEncode(&DiscoItems{Node: node})
 
 	resp, err := disco.XMPP.SendRecv(req)
 	if err != nil {
@@ -94,7 +96,7 @@ func (disco *Disco) Items(to string, from string) (*DiscoItems, error) {
 	return items, err
 }
 
-var discoNamespacePrefix = strings.Split(nsDiscoInfo, "#")[0]
+var discoNamespacePrefix = strings.Split(NSDiscoInfo, "#")[0]
 
 // Matcher instance to match <iq/> stanzas with a disco payload.
 var DiscoPayloadMatcher = MatcherFunc(
