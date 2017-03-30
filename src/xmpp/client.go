@@ -136,7 +136,7 @@ func authenticate(stream *Stream, mechanisms []string, user, password string) er
 			return nil
 		}
 	}
-	return errors.New("No supported SASL mechanism found.")
+	return errors.New("no supported SASL mechanism found")
 }
 
 type authHandler struct {
