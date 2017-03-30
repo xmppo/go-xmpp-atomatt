@@ -199,7 +199,7 @@ func (x *XMPP) receiver() {
 		case "presence":
 			v = &Presence{}
 		default:
-			log.Println("Error. Unexected element: %T %v", start, start)
+			log.Printf("Error. Unexected element: %T %v", start, start)
 		}
 
 		err = x.stream.Decode(v, start)
