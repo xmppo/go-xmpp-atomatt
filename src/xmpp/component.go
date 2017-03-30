@@ -35,21 +35,20 @@ func startComponent(stream *Stream, jid JID) (string, error) {
 
 	var streamId string
 
-	if rstart, err := stream.SendStart(&start); err != nil {
+	rstart, err := stream.SendStart(&start)
+	if err != nil {
 		return "", err
-	} else {
-		if rstart.Name != (xml.Name{nsStreams, "stream"}) {
-			return "", fmt.Errorf("unexpected start element: %s", rstart.Name)
-		}
-		// Find the stream id.
-		for _, attr := range rstart.Attr {
-			if attr.Name.Local == "id" {
-				streamId = attr.Value
-				break
-			}
+	}
+	if rstart.Name != (xml.Name{nsStreams, "stream"}) {
+		return "", fmt.Errorf("unexpected start element: %s", rstart.Name)
+	}
+	// Find the stream id.
+	for _, attr := range rstart.Attr {
+		if attr.Name.Local == "id" {
+			streamId = attr.Value
+			break
 		}
 	}
-
 	if streamId == "" {
 		return "", errors.New("Missing stream id")
 	}
@@ -70,18 +69,14 @@ func handshake(stream *Stream, streamId, secret string) error {
 	}
 
 	// Get handshake response.
-	if start, err := stream.Next(); err != nil {
-		return err
-	} else {
-		if start.Name != (xml.Name{nsComponentAccept, "handshake"}) {
-			return fmt.Errorf("Expected <handshake/>, for %s", start.Name)
-		}
-	}
-	if err := stream.Skip(); err != nil {
+	start, err := stream.Next()
+	if err != nil {
 		return err
 	}
-
-	return nil
+	if start.Name != (xml.Name{nsComponentAccept, "handshake"}) {
+		return fmt.Errorf("Expected <handshake/>, for %s", start.Name)
+	}
+	return stream.Skip()
 }
 
 type saslHandshake struct {

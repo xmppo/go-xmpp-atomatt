@@ -115,12 +115,11 @@ type Error struct {
 }
 
 func (e Error) Error() string {
-	if text := e.Text(); text == "" {
+	text := e.Text()
+	if text == "" {
 		return fmt.Sprintf("[%s] %s", e.Type, e.Condition().Local)
-	} else {
-		return fmt.Sprintf("[%s] %s, %s", e.Type, e.Condition().Local, text)
 	}
-	panic("unreachable")
+	return fmt.Sprintf("[%s] %s, %s", e.Type, e.Condition().Local, text)
 }
 
 type errorText struct {

@@ -76,14 +76,13 @@ func writeXMLAttr(w io.Writer, attr xml.Attr) error {
 func startElementIter(dec *xml.Decoder) func() *xml.StartElement {
 	return func() *xml.StartElement {
 		for {
-			if tok, err := dec.Token(); err != nil {
+			tok, err := dec.Token()
+			if err != nil {
 				return nil
-			} else {
-				if start, ok := tok.(xml.StartElement); ok {
-					return &start
-				}
+			}
+			if start, ok := tok.(xml.StartElement); ok {
+				return &start
 			}
 		}
-		return nil
 	}
 }

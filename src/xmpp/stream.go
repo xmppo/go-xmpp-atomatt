@@ -148,11 +148,11 @@ func (stream *Stream) Next() (*xml.StartElement, error) {
 	}
 
 	if stream.config.LogStanzas {
-		if xml, err := collectElement(stream.dec, start, stream.incomingNamespace); err != nil {
+		xml, err := collectElement(stream.dec, start, stream.incomingNamespace)
+		if err != nil {
 			return nil, err
-		} else {
-			stream.stanzaBuf = xml
 		}
+		stream.stanzaBuf = xml
 		log.Println("recv:", stream.stanzaBuf)
 	}
 
@@ -170,7 +170,7 @@ func nextStartElement(dec *xml.Decoder) (*xml.StartElement, error) {
 		}
 		switch e := t.(type) {
 		case xml.StartElement:
-			for i, _ := range e.Attr {
+			for i := range e.Attr {
 				// Replace URL namespace to xml in order to avoid error on Unmarshal
 				// It's quite ugly, but working for now
 				if e.Attr[i].Name.Space == "http://www.w3.org/XML/1998/namespace" {
@@ -183,7 +183,6 @@ func nextStartElement(dec *xml.Decoder) (*xml.StartElement, error) {
 			return nil, io.EOF
 		}
 	}
-	panic("Unreachable")
 }
 
 // Skip reads tokens until it reaches the end element of the most recent start
@@ -205,11 +204,11 @@ func (stream *Stream) Decode(v interface{}, start *xml.StartElement) error {
 	// Explicity lookup next start element to ensure stream is validated,
 	// stanza is logged, etc.
 	if start == nil {
-		if se, err := stream.Next(); err != nil {
+		se, err := stream.Next()
+		if err != nil {
 			return err
-		} else {
-			start = se
 		}
+		start = se
 	}
 
 	if stream.config.LogStanzas {
