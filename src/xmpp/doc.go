@@ -33,7 +33,7 @@ shutdown or any other error for something unexpected). The channel is also
 closed after an error.
 
 XMPP defines four types of stanza: <error/>, <iq/>, <message/> and <presence/>
-represented by Error, Iq, Message (shown below) and Presence structs
+represented by Error, IQ, Message (shown below) and Presence structs
 respectively.
 
 	for i := range X.In {

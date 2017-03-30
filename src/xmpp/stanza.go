@@ -18,9 +18,9 @@ const (
 )
 
 // XMPP <iq/> stanza.
-type Iq struct {
+type IQ struct {
 	XMLName xml.Name `xml:"iq"`
-	Id      string   `xml:"id,attr"`
+	ID      string   `xml:"id,attr"`
 	Type    string   `xml:"type,attr"`
 	To      string   `xml:"to,attr,omitempty"`
 	From    string   `xml:"from,attr,omitempty"`
@@ -30,7 +30,7 @@ type Iq struct {
 
 // Encode the value to an XML string and set as the payload. See xml.Marshal
 // for how the value is encoded.
-func (iq *Iq) PayloadEncode(v interface{}) error {
+func (iq *IQ) PayloadEncode(v interface{}) error {
 	bytes, err := xml.Marshal(v)
 	if err != nil {
 		return err
@@ -41,12 +41,12 @@ func (iq *Iq) PayloadEncode(v interface{}) error {
 
 // Decode the payload (an XML string) into the given value. See xml.Unmarshal
 // for how the value is decoded.
-func (iq *Iq) PayloadDecode(v interface{}) error {
+func (iq *IQ) PayloadDecode(v interface{}) error {
 	return xml.Unmarshal([]byte(iq.Payload), v)
 }
 
 // Return the name of the payload element.
-func (iq *Iq) PayloadName() (name xml.Name) {
+func (iq *IQ) PayloadName() (name xml.Name) {
 	dec := xml.NewDecoder(bytes.NewBufferString(iq.Payload))
 	tok, err := dec.Token()
 	if err != nil {
@@ -59,16 +59,16 @@ func (iq *Iq) PayloadName() (name xml.Name) {
 	return start.Name
 }
 
-// Create a response Iq. The Id is kept, To and From are reversed, Type is set
+// Create a response IQ. The ID is kept, To and From are reversed, Type is set
 // to the given value.
-func (iq *Iq) Response(type_ string) *Iq {
-	return &Iq{Id: iq.Id, Type: type_, From: iq.To, To: iq.From}
+func (iq *IQ) Response(iqType string) *IQ {
+	return &IQ{ID: iq.ID, Type: iqType, From: iq.To, To: iq.From}
 }
 
 // XMPP <message/> stanza.
 type Message struct {
 	XMLName xml.Name      `xml:"message"`
-	Id      string        `xml:"id,attr,omitempty"`
+	ID      string        `xml:"id,attr,omitempty"`
 	Type    string        `xml:"type,attr,omitempty"`
 	To      string        `xml:"to,attr,omitempty"`
 	From    string        `xml:"from,attr,omitempty"`
@@ -95,7 +95,7 @@ type MessageBody struct {
 // XMPP <presence/> stanza.
 type Presence struct {
 	XMLName xml.Name `xml:"presence"`
-	Id      string   `xml:"id,attr,omitempty"`
+	ID      string   `xml:"id,attr,omitempty"`
 	Type    string   `xml:"type,attr,omitempty"`
 	To      string   `xml:"to,attr,omitempty"`
 	From    string   `xml:"from,attr,omitempty"`

@@ -16,7 +16,7 @@ type Disco struct {
 	XMPP *XMPP
 }
 
-// Iq get/result payload for "info" requests.
+// IQ get/result payload for "info" requests.
 type DiscoInfo struct {
 	XMLName  xml.Name        `xml:"http://jabber.org/protocol/disco#info query"`
 	Node     string          `xml:"node,attr"`
@@ -36,7 +36,7 @@ type DiscoFeature struct {
 	Var string `xml:"var,attr"`
 }
 
-// Iq get/result payload for "items" requests.
+// IQ get/result payload for "items" requests.
 type DiscoItems struct {
 	XMLName xml.Name    `xml:"http://jabber.org/protocol/disco#items query"`
 	Node    string      `xml:"node,attr"`
@@ -57,7 +57,7 @@ func (disco *Disco) Info(to, from string) (*DiscoInfo, error) {
 		from = disco.XMPP.JID.Full()
 	}
 
-	req := &Iq{Id: UUID4(), Type: IQTypeGet, To: to, From: from}
+	req := &IQ{ID: UUID4(), Type: IQTypeGet, To: to, From: from}
 	req.PayloadEncode(&DiscoInfo{})
 
 	resp, err := disco.XMPP.SendRecv(req)
@@ -80,7 +80,7 @@ func (disco *Disco) Items(to, from, node string) (*DiscoItems, error) {
 		from = disco.XMPP.JID.Full()
 	}
 
-	req := &Iq{Id: UUID4(), Type: IQTypeGet, To: to, From: from}
+	req := &IQ{ID: UUID4(), Type: IQTypeGet, To: to, From: from}
 	req.PayloadEncode(&DiscoItems{Node: node})
 
 	resp, err := disco.XMPP.SendRecv(req)
@@ -101,7 +101,7 @@ var discoNamespacePrefix = strings.Split(NSDiscoInfo, "#")[0]
 // Matcher instance to match <iq/> stanzas with a disco payload.
 var DiscoPayloadMatcher = MatcherFunc(
 	func(v interface{}) bool {
-		iq, ok := v.(*Iq)
+		iq, ok := v.(*IQ)
 		if !ok {
 			return false
 		}

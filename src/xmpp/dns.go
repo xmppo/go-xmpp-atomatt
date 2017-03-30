@@ -8,7 +8,7 @@ import (
 
 const (
 	// Standard port for XMPP clients to connect to.
-	XMPP_CLIENT_PORT = 5222
+	ClientPort = 5222
 )
 
 // Perform a DNS SRV lookup and return an ordered list of "host:port" TCP
@@ -22,7 +22,7 @@ func HomeServerAddrs(jid JID) (addr []string, err error) {
 	// If there's nothing in DNS then assume the JID's domain and the standard
 	// port will work.
 	if len(addrs) == 0 {
-		addr = []string{fmt.Sprintf("%s:%d", jid.Domain, XMPP_CLIENT_PORT)}
+		addr = []string{fmt.Sprintf("%s:%d", jid.Domain, ClientPort)}
 		return
 	}
 

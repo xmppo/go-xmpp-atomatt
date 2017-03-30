@@ -50,7 +50,7 @@ func main() {
 
 	// Get disco#info for home server.
 	info := &DiscoInfo{}
-	iq := xmpp.Iq{Id: xmpp.UUID4(), Type: "get", To: client.JID.Domain}
+	iq := xmpp.IQ{ID: xmpp.UUID4(), Type: "get", To: client.JID.Domain}
 	iq.PayloadEncode(info)
 	reply, _ := client.SendRecv(&iq)
 	reply.PayloadDecode(info)
