@@ -18,19 +18,19 @@ type XMPP struct {
 	JID    JID
 	stream *Stream
 
-	// Channel of incoming messages. Values will be one of Iq, Message,
+	// Channel of incoming messages. Values will be one of IQ, Message,
 	// Presence, Error or error. Will be closed at the end when the stream is
 	// closed or the stream's net connection dies.
 	In chan interface{}
 
 	// Channel of outgoing messages. Messages must be able to be marshaled by
-	// the standard xml package, however you should try to send one of Iq,
+	// the standard xml package, however you should try to send one of IQ,
 	// Message or Presence.
 	Out chan interface{}
 
 	// Incoming stanza filters.
 	filterLock   sync.Mutex
-	nextFilterId FilterId
+	nextFilterID FilterID
 	filters      []filter
 }
 
@@ -46,17 +46,17 @@ func newXMPP(jid JID, stream *Stream) *XMPP {
 	return x
 }
 
-func (x *XMPP) SendRecv(iq *Iq) (*Iq, error) {
+func (x *XMPP) SendRecv(iq *IQ) (*IQ, error) {
 
-	fid, ch := x.AddFilter(IqResult(iq.Id))
+	fid, ch := x.AddFilter(IQResult(iq.ID))
 	defer x.RemoveFilter(fid)
 
 	x.Out <- iq
 
 	stanza := <-ch
-	reply, ok := stanza.(*Iq)
+	reply, ok := stanza.(*IQ)
 	if !ok {
-		return nil, fmt.Errorf("Expected Iq, for %T", stanza)
+		return nil, fmt.Errorf("Expected IQ, for %T", stanza)
 	}
 	return reply, nil
 }
@@ -78,23 +78,23 @@ func (fn MatcherFunc) Match(v interface{}) bool {
 
 // Uniquely identifies a stream filter. Used to remove a filter that's no
 // longer needed.
-type FilterId int64
+type FilterID int64
 
-// Implements the error interface for a FilterId.
-func (fid FilterId) Error() string {
+// Implements the error interface for a FilterID.
+func (fid FilterID) Error() string {
 	return fmt.Sprintf("Invalid filter id: %d", fid)
 }
 
 type filter struct {
-	id FilterId
+	id FilterID
 	m  Matcher
 	ch chan interface{}
 }
 
 // Add a filter that routes matching stanzas to the returned channel. A
-// FilterId is also returned and can be pased to RemoveFilter to remove the
+// FilterID is also returned and can be pased to RemoveFilter to remove the
 // filter again.
-func (x *XMPP) AddFilter(m Matcher) (FilterId, chan interface{}) {
+func (x *XMPP) AddFilter(m Matcher) (FilterID, chan interface{}) {
 
 	// Protect against concurrent access.
 	x.filterLock.Lock()
@@ -102,8 +102,8 @@ func (x *XMPP) AddFilter(m Matcher) (FilterId, chan interface{}) {
 
 	// Allocate chan and id.
 	ch := make(chan interface{})
-	id := x.nextFilterId
-	x.nextFilterId++
+	id := x.nextFilterID
+	x.nextFilterID++
 
 	// Insert at head of filters list.
 	filters := make([]filter, len(x.filters)+1)
@@ -115,7 +115,7 @@ func (x *XMPP) AddFilter(m Matcher) (FilterId, chan interface{}) {
 }
 
 // Remove a filter previously added with AddFilter.
-func (x *XMPP) RemoveFilter(id FilterId) error {
+func (x *XMPP) RemoveFilter(id FilterID) error {
 
 	// Protect against concurrent access.
 	x.filterLock.Lock()
@@ -145,14 +145,14 @@ func (x *XMPP) RemoveFilter(id FilterId) error {
 
 // Matcher to identify a <iq id="..." type="result" /> stanza with the given
 // id.
-func IqResult(id string) Matcher {
+func IQResult(id string) Matcher {
 	return MatcherFunc(
 		func(v interface{}) bool {
-			iq, ok := v.(*Iq)
+			iq, ok := v.(*IQ)
 			if !ok {
 				return false
 			}
-			if iq.Id != id {
+			if iq.ID != id {
 				return false
 			}
 			return true
@@ -193,7 +193,7 @@ func (x *XMPP) receiver() {
 		case "error":
 			v = &Error{}
 		case "iq":
-			v = &Iq{}
+			v = &IQ{}
 		case "message":
 			v = &Message{}
 		case "presence":

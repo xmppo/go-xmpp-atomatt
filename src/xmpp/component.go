@@ -10,12 +10,12 @@ import (
 // Create a component XMPP connection over the stream.
 func NewComponentXMPP(stream *Stream, jid JID, secret string) (*XMPP, error) {
 
-	streamId, err := startComponent(stream, jid)
+	streamID, err := startComponent(stream, jid)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := handshake(stream, streamId, secret); err != nil {
+	if err := handshake(stream, streamID, secret); err != nil {
 		return nil, err
 	}
 
@@ -33,7 +33,7 @@ func startComponent(stream *Stream, jid JID) (string, error) {
 		},
 	}
 
-	var streamId string
+	var streamID string
 
 	rstart, err := stream.SendStart(&start)
 	if err != nil {
@@ -45,21 +45,21 @@ func startComponent(stream *Stream, jid JID) (string, error) {
 	// Find the stream id.
 	for _, attr := range rstart.Attr {
 		if attr.Name.Local == "id" {
-			streamId = attr.Value
+			streamID = attr.Value
 			break
 		}
 	}
-	if streamId == "" {
+	if streamID == "" {
 		return "", errors.New("Missing stream id")
 	}
 
-	return streamId, nil
+	return streamID, nil
 }
 
-func handshake(stream *Stream, streamId, secret string) error {
+func handshake(stream *Stream, streamID, secret string) error {
 
 	hash := sha1.New()
-	hash.Write([]byte(streamId))
+	hash.Write([]byte(streamID))
 	hash.Write([]byte(secret))
 
 	// Send handshake.

@@ -187,29 +187,29 @@ type saslAuth struct {
 
 func bindResource(stream *Stream, jid JID) (JID, error) {
 
-	req := Iq{Id: UUID4(), Type: "set"}
+	req := IQ{ID: UUID4(), Type: "set"}
 	if jid.Resource == "" {
-		req.PayloadEncode(bindIq{})
+		req.PayloadEncode(bindIQ{})
 	} else {
-		req.PayloadEncode(bindIq{Resource: jid.Resource})
+		req.PayloadEncode(bindIQ{Resource: jid.Resource})
 	}
 	if err := stream.Send(req); err != nil {
 		return JID{}, err
 	}
 
-	resp := Iq{}
+	resp := IQ{}
 	err := stream.Decode(&resp, nil)
 	if err != nil {
 		return JID{}, err
 	}
-	bindResp := bindIq{}
+	bindResp := bindIQ{}
 	resp.PayloadDecode(&bindResp)
 
 	boundJID, err := ParseJID(bindResp.JID)
 	return boundJID, nil
 }
 
-type bindIq struct {
+type bindIQ struct {
 	XMLName  xml.Name `xml:"urn:ietf:params:xml:ns:xmpp-bind bind"`
 	Resource string   `xml:"resource,omitempty"`
 	JID      string   `xml:"jid,omitempty"`
@@ -217,13 +217,13 @@ type bindIq struct {
 
 func establishSession(stream *Stream, domain string) error {
 
-	req := Iq{Id: UUID4(), Type: "set", To: domain}
+	req := IQ{ID: UUID4(), Type: "set", To: domain}
 	req.PayloadEncode(&session{})
 	if err := stream.Send(req); err != nil {
 		return err
 	}
 
-	resp := Iq{}
+	resp := IQ{}
 	if err := stream.Decode(&resp, nil); err != nil {
 		return err
 	} else if resp.Error != nil {
