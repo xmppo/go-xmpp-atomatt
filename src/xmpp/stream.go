@@ -30,7 +30,7 @@ type Stream struct {
 	incomingNamespace nsMap
 }
 
-// Create a XML stream connection. A Steam is used by an XMPP instance to
+// Create a XML stream connection. A Stream is used by an XMPP instance to
 // handle sending and receiving XML data over the net connection.
 func NewStream(addr string, config *StreamConfig) (*Stream, error) {
 

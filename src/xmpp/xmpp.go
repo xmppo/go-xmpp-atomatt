@@ -76,8 +76,8 @@ func (fn MatcherFunc) Match(v interface{}) bool {
 	return fn(v)
 }
 
-// Uniquly identifies a stream fiter. Used to remove a filter that's no longer
-// needed.
+// Uniquely identifies a stream filter. Used to remove a filter that's no
+// longer needed.
 type FilterId int64
 
 // Implements the error interface for a FilterId.
