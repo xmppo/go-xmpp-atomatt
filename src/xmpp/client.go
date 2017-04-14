@@ -93,14 +93,13 @@ func startClient(stream *Stream, jid JID) error {
 		},
 	}
 
-	if rstart, err := stream.SendStart(&start); err != nil {
+	rstart, err := stream.SendStart(&start)
+	if err != nil {
 		return err
-	} else {
-		if rstart.Name != (xml.Name{nsStreams, "stream"}) {
-			return fmt.Errorf("unexpected start element: %s", rstart.Name)
-		}
 	}
-
+	if rstart.Name != (xml.Name{nsStreams, "stream"}) {
+		return fmt.Errorf("unexpected start element: %s", rstart.Name)
+	}
 	return nil
 }
 
@@ -137,7 +136,7 @@ func authenticate(stream *Stream, mechanisms []string, user, password string) er
 			return nil
 		}
 	}
-	return errors.New("No supported SASL mechanism found.")
+	return errors.New("no supported SASL mechanism found")
 }
 
 type authHandler struct {
@@ -158,26 +157,26 @@ func authenticatePlain(stream *Stream, user, password string) error {
 }
 
 func authenticateResponse(stream *Stream) error {
-	if se, err := stream.Next(); err != nil {
+	se, err := stream.Next()
+	if err != nil {
 		return err
-	} else {
-		switch se.Name.Local {
-		case "success":
-			if err := stream.Skip(); err != nil {
-				return err
-			}
-			return nil
-		case "failure":
-			f := new(saslFailure)
-			if err := stream.Decode(f, se); err != nil {
-				return err
-			}
-			return fmt.Errorf("Authentication failed: %s", f.Reason.Local)
-		default:
-			return fmt.Errorf("Unexpected: %s", se.Name)
-		}
 	}
-	panic("unreachable")
+
+	switch se.Name.Local {
+	case "success":
+		if err := stream.Skip(); err != nil {
+			return err
+		}
+		return nil
+	case "failure":
+		f := new(saslFailure)
+		if err := stream.Decode(f, se); err != nil {
+			return err
+		}
+		return fmt.Errorf("Authentication failed: %s", f.Reason.Local)
+	default:
+		return fmt.Errorf("Unexpected: %s", se.Name)
+	}
 }
 
 type saslAuth struct {
